@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
-export function LoginModal({ onClose, onSwitchToRegister }) {
+export default function LoginModal({ onClose, onSwitchToRegister }) {
   const { login } = useContext(AuthContext);
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +19,6 @@ export function LoginModal({ onClose, onSwitchToRegister }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        {/* close button */}
         <button className="modal-close" onClick={onClose} aria-label="Close">
           ×
         </button>

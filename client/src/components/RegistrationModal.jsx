@@ -1,77 +1,58 @@
-// client/src/components/RegistrationModal.jsx
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
-export function RegistrationModal({ onClose, onSwitchToLogin }) {
+export default function RegistrationModal({ onClose, onSwitchToLogin }) {
   const { register } = useContext(AuthContext);
-  const [info, setInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
+  const [info, setInfo]   = useState({
+    firstName: '',
+    lastName:  '',
+    email:     '',
+    password:  ''
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const emailIsValid = (email) =>
-    email.includes("@") && email.toLowerCase().endsWith(".com");
+  const emailIsValid = email =>
+    email.includes('@') && email.toLowerCase().endsWith('.com');
+  const passwordIsValid = pw =>
+    /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/.test(pw);
 
-  const passwordIsValid = (pw) => {
-    // at least 6 chars, one uppercase, one digit, one special
-    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/;
-    return re.test(pw);
-  };
-
-  // generic onChange for all inputs
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setInfo({ ...info, [name]: value });
-    setError(""); // clear previous error as user types
+    setInfo(prev => ({ ...prev, [name]: value }));
+    setError('');
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = async e => {
     e.preventDefault();
-
-    // client-side validation
     if (!info.firstName.trim() || !info.lastName.trim()) {
-      setError("Please enter both first and last names.");
+      setError('Please enter both first and last names.');
       return;
     }
     if (!emailIsValid(info.email)) {
-      setError("Please enter a valid email (must contain @ and end in .com).");
+      setError('Please enter a valid email (must contain @ and end in .com).');
       return;
     }
     if (!passwordIsValid(info.password)) {
       setError(
-        "Password must be ≥6 chars, include an uppercase letter, a number & a special character."
+        'Password must be ≥6 chars, include an uppercase letter, a number & a special character.'
       );
       return;
     }
-
     try {
       await register(info);
       onClose();
     } catch (err) {
-      setError("Registration failed: " + err.message);
+      setError('Registration failed: ' + err.message);
     }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-labelledby="register-heading"
-      >
-        <button
-          className="modal-close"
-          onClick={onClose}
-          aria-label="Close registration form"
-        >
+      <div className="modal-content" onClick={e => e.stopPropagation()} role="dialog" aria-labelledby="register-heading">
+        <button className="modal-close" onClick={onClose} aria-label="Close registration form">
           ×
         </button>
         <h2 id="register-heading">Register</h2>
-
         <form onSubmit={handleRegister}>
           <input
             name="firstName"
@@ -101,8 +82,7 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
           />
 
           <p className="text-small">
-            Password must be at least 6 characters, with uppercase, number &
-            special character.
+            Password must be at least 6 characters, with uppercase, number & special character.
           </p>
 
           {error && <p className="error">{error}</p>}
@@ -111,7 +91,7 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
         </form>
 
         <p className="modal-footer-text">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <button className="link-button" onClick={onSwitchToLogin}>
             Log In
           </button>
@@ -120,6 +100,7 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
     </div>
   );
 }
+
 
 
 
