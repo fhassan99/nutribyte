@@ -1,4 +1,3 @@
-// client/src/pages/TrackPage.jsx
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -11,24 +10,24 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect if not logged in
+  // redirect to home if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
-  const [date, setDate]         = useState(() => new Date().toISOString().slice(0, 10));
-  const [entries, setEntries]   = useState([]);
-  const [search, setSearch]     = useState('');
+
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [entries, setEntries] = useState([]);
+  const [search, setSearch] = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
-  // load existing entries
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(setEntries)
+      .then(res => (res.ok ? res.json() : Promise.reject()))
+      .then(data => setEntries(data))
       .catch(() => setEntries([]));
   }, [date, token]);
 
@@ -36,54 +35,44 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [loadEntries, token]);
 
-  // compute daily totals
-  const totals = entries.reduce((acc, e) => {
-    acc.Calories += e.calories || 0;
-    acc.Protein  += e.protein  || 0;
-    acc.Carbs    += e.carbs    || 0;
-    acc.Fat      += e.fat      || 0;
-    acc.Sugars   += e.sugars   || 0;
-    return acc;
-  }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
+  // compute totals
+  const totals = entries.reduce(
+    (acc, e) => {
+      acc.Calories += e.calories || 0;
+      acc.Protein  += e.protein  || 0;
+      acc.Carbs    += e.carbs    || 0;
+      acc.Fat      += e.fat      || 0;
+      acc.Sugars   += e.sugars   || 0;
+      return acc;
+    },
+    { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 }
+  );
 
   const chartData = Object.entries(totals).map(([name, value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
 
-  // fetch suggestions whenever `search` changes
+  // dynamic suggestions
   useEffect(() => {
-    if (!search) {
-      setSuggestions([]);
-      return;
-    }
+    if (!search) return setSuggestions([]);
     fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(result => {
-        // API returns { foods, count }
-        const items = Array.isArray(result) ? result : result.foods;
-        setSuggestions(items || []);
-      })
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(json => setSuggestions(json.foods))
       .catch(() => setSuggestions([]));
   }, [search]);
 
-  // when user clicks "Find", just trigger suggestions again
-  const handleFind = () => {
-    // force re-fetch by re-setting search
-    setSearch(s => s.trim());
-  };
-
-  const addEntry = food => {
+  const addEntry = (food) => {
     fetch(`/api/foods/${food.fdcId}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
         const getAmt = name =>
           full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
 
         const entry = {
-          time: new Date().toLocaleTimeString('en-GB'), // e.g. "14:30:00"
-          date,
+          fdcId: full.fdcId,
           description: full.description,
+          date,
           calories: getAmt('Energy'),
           protein:  getAmt('Protein'),
           carbs:    getAmt('Carbohydrate, by difference'),
@@ -104,15 +93,14 @@ export default function TrackPage() {
         if (!r.ok) throw new Error();
         loadEntries();
         setSearch('');
+        setSuggestions([]);
       })
-      .catch(() => alert('Could not add entry. Make sure you’re logged in.'));
+      .catch(() => alert('Could not add entry. Please make sure you’re logged in.'));
   };
 
   return (
     <div className="container">
-      <button className="home-btn-blue" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+      <button className="home-btn-blue" onClick={() => navigate(-1)}>← Back</button>
 
       <h1>Track My Calories</h1>
 
@@ -194,7 +182,7 @@ export default function TrackPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button onClick={handleFind}>Find</button>
+          <button>Find</button>
         </div>
       </div>
 
@@ -203,15 +191,10 @@ export default function TrackPage() {
         {suggestions.map(f => (
           <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
             <h3>{f.description}</h3>
-            <p>{f.brandOwner || 'Unknown Brand'}</p>
+            <p>{f.brandOwner}</p>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-
-
-
-
