@@ -1,15 +1,10 @@
-// src/index.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';    // React 18+
+import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css';                      // Global styles
-
+import './index.css';
 
 const rootEl = document.getElementById('root');
-
-if (!rootEl) {
-  throw new Error("Failed to find the root element");
-}
+if (!rootEl) throw new Error("Failed to find the root element");
 
 const root = ReactDOM.createRoot(rootEl);
 root.render(
@@ -17,3 +12,4 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
