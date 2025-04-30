@@ -5,24 +5,37 @@ export default function SearchPage() {
   const [input, setInput]     = useState('');
   const [query, setQuery]     = useState('');
   const [foods, setFoods]     = useState([]);
+  const [count, setCount]     = useState(0);
+  const [page, setPage]       = useState(1);
+  const [limit]               = useState(20);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const navigate              = useNavigate();
 
-  // Fetch on query change
   useEffect(() => {
     if (!query) return;
+
     setLoading(true);
     setError('');
-    fetch(`/api/foods?search=${encodeURIComponent(query)}&page=1&limit=20`)
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setFoods(data))
-      .catch(() => {
+    fetch(`/api/foods?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
+      .then(res => {
+        if (!res.ok) throw new Error(res.status);
+        return res.json();
+      })
+      .then(data => {
+        setFoods(data.foods);
+        setCount(data.count);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
         setError('Failed to load results');
         setFoods([]);
+        setCount(0);
       })
       .finally(() => setLoading(false));
-  }, [query]);
+  }, [query, page, limit]);
+
+  const totalPages = Math.max(1, Math.ceil(count / limit));
 
   return (
     <div className="container">
@@ -30,7 +43,7 @@ export default function SearchPage() {
         ← Home
       </button>
 
-      <p className="text-secondary" style={{ marginTop: '2rem' }}>
+      <p style={{ color: 'var(--text-secondary)', marginTop: '2rem' }}>
         Type any food or brand name into the box below, then hit Search.
       </p>
 
@@ -45,6 +58,7 @@ export default function SearchPage() {
           onClick={() => {
             if (!input.trim()) return;
             setQuery(input.trim());
+            setPage(1);
           }}
         >
           Search
@@ -69,9 +83,27 @@ export default function SearchPage() {
           </div>
         ))}
       </div>
+
+      {count > limit && (
+        <div className="pagination">
+          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+            Prev
+          </button>
+          <span>
+            {page} / {totalPages}
+          </span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 
 
