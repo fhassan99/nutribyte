@@ -302,9 +302,50 @@ th {
   transition: background 0.2s;
   margin-top: 0.5rem;
 }
-.modal-content button:hover
+.modal-content button:hover {
+  background: var(--secondary);
+}
+.modal-footer-text {
+  text-align: center;
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+}
+.link-button {
+  background: none;
+  border: none;
+  color: var(--secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-
-
-
-
+/* — Date & delete inputs — */
+.time-input {
+  background: var(--bg);
+  border: 1px solid var(--text-secondary);
+  border-radius: .25rem;
+  padding: .25rem;
+  color: var(--text);
+  font-size: .9rem;
+}
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--error);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.delete-btn:hover {
+  color: #ff4d4d;
+}
+.entries-table input[type="time"] {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+}
+.entries-table .totals {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
