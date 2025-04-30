@@ -10,7 +10,7 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
     email: "",
     password: "",
   });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   const emailIsValid = (email) =>
     email.includes("@") && email.toLowerCase().endsWith(".com");
@@ -21,8 +21,17 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
     return re.test(pw);
   };
 
-  const handleRegister = async () => {
-    // client‐side checks
+  // generic onChange for all inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInfo({ ...info, [name]: value });
+    setError(""); // clear previous error as user types
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    // client-side validation
     if (!info.firstName.trim() || !info.lastName.trim()) {
       setError("Please enter both first and last names.");
       return;
@@ -38,7 +47,6 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
       return;
     }
 
-    // all good → call API
     try {
       await register(info);
       onClose();
@@ -49,62 +57,69 @@ export function RegistrationModal({ onClose, onSwitchToLogin }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close">
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-labelledby="register-heading"
+      >
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close registration form"
+        >
           ×
         </button>
-        <div className="modal-header-pill" />
-        <h2>Register</h2>
+        <h2 id="register-heading">Register</h2>
 
-        <input
-          placeholder="First name"
-          value={info.firstName}
-          onChange={(e) =>
-            setInfo({ ...info, firstName: e.target.value })
-          }
-        />
-        <input
-          placeholder="Last name"
-          value={info.lastName}
-          onChange={(e) =>
-            setInfo({ ...info, lastName: e.target.value })
-          }
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={info.email}
-          onChange={(e) =>
-            setInfo({ ...info, email: e.target.value })
-          }
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={info.password}
-          onChange={(e) =>
-            setInfo({ ...info, password: e.target.value })
-          }
-        />
+        <form onSubmit={handleRegister}>
+          <input
+            name="firstName"
+            placeholder="First name"
+            value={info.firstName}
+            onChange={handleChange}
+          />
+          <input
+            name="lastName"
+            placeholder="Last name"
+            value={info.lastName}
+            onChange={handleChange}
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={info.email}
+            onChange={handleChange}
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={info.password}
+            onChange={handleChange}
+          />
 
-        <p className="text-small">
-          Password must be at least 6 characters, with uppercase, number &
-          special character.
-        </p>
+          <p className="text-small">
+            Password must be at least 6 characters, with uppercase, number &
+            special character.
+          </p>
 
-        {error && <p className="error">{error}</p>}
+          {error && <p className="error">{error}</p>}
 
-        <button onClick={handleRegister}>Create Account</button>
+          <button type="submit">Create Account</button>
+        </form>
 
         <p className="modal-footer-text">
           Already have an account?{" "}
           <button className="link-button" onClick={onSwitchToLogin}>
-            Login
+            Log In
           </button>
         </p>
       </div>
     </div>
   );
 }
+
 
 

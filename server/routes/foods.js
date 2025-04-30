@@ -1,40 +1,49 @@
-// server/routes/foods.js
 const express = require('express');
-const Food    = require('../models/Food');
-const router  = express.Router();
+const Food = require('../models/Food');
+const router = express.Router();
 
-// GET /api/foods?search=rice
+// GET /api/foods?search=&page=1&limit=20
 router.get('/', async (req, res) => {
   try {
-    const { search = '' } = req.query;
-    const regex = new RegExp(search, 'i');
-
-    // fetch up to 50 matching docs
-    const results = await Food.find({
+    const { search = '', page = 1, limit = 20 } = req.query;
+    const pg = Math.max(1, Number(page));
+    const lim = Math.max(1, Number(limit));
+    const filter = {
       $or: [
-        { description: regex },
-        { brandOwner:  regex }
+        { description: new RegExp(search, 'i') },
+        { brandOwner: new RegExp(search, 'i') }
       ]
-    })
-    .limit(50);
+    };
 
-    // log only the count, not the full documents
-    console.log(`🔢 Found ${results.length} foods for search="${search}"`);
+    // count & page in parallel
+    const [count, foods] = await Promise.all([
+      Food.countDocuments(filter),
+      Food.find(filter)
+          .skip((pg - 1) * lim)
+          .limit(lim)
+    ]);
 
-    // if you ever need a quick peek at the first few items:
-    // console.log('  Sample:', results.slice(0,5).map(f => ({
-    //   fdcId:       f.fdcId,
-    //   description: f.description
-    // })));
-
-    res.json(results);
+    res.json({ foods, count });
   } catch (err) {
-    console.error('Error fetching foods:', err);
+    console.error(err);
     res.status(500).json({ error: 'Server error fetching foods' });
   }
 });
 
+// GET /api/foods/:fdcId
+router.get('/:fdcId', async (req, res) => {
+  try {
+    const food = await Food.findOne({ fdcId: Number(req.params.fdcId) });
+    if (!food) return res.status(404).json({ error: 'Food not found' });
+    res.json(food);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching food' });
+  }
+});
+
 module.exports = router;
+
 
 
 

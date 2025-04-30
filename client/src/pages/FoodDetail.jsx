@@ -9,7 +9,7 @@ export default function FoodDetail() {
   const [error, setError]   = useState('');
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/foods/${fdcId}`)
+    fetch(`/api/foods/${fdcId}`)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => setFood(data))
       .catch(() => setError('Failed to load food'))
