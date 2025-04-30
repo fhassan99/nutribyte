@@ -20,12 +20,12 @@ export default function SearchPage() {
     setLoading(true);
     setError('');
     fetch(`/api/foods?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
-      .then(res => res.json())           // always parse JSON, regardless of status
+      .then(res => res.ok ? res.json() : Promise.reject())           // always parse JSON, regardless of status
       .then(data => {
-        const arr = Array.isArray(data) ? data : [];
-        setFoods(arr);
-        setCount(arr.length);
-      })
+        setFoods(data);
+        setCount(data.length);
+        setError('');
+        })
       .catch(err => {
         console.error('Fetch error:', err);
         setError('Failed to load results');

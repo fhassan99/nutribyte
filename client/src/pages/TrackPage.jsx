@@ -58,7 +58,7 @@ export default function TrackPage() {
     if (!search) return setSuggestions([]);
     fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(json => setSuggestions(json.foods))
+      .then(data => setSugs1(data))
       .catch(() => setSuggestions([]));
   }, [search]);
 

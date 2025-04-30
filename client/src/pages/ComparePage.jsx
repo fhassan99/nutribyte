@@ -19,7 +19,7 @@ export default function ComparePage() {
     }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(data => Array.isArray(data) ? setSugs1(data) : setSugs1([]))
+      .then(data => setSugs1(data))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
@@ -31,7 +31,7 @@ export default function ComparePage() {
     }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(data => Array.isArray(data) ? setSugs2(data) : setSugs2([]))
+      .then(data => setSugs2(data))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
