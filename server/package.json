@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "NutriByte Express API server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "load-data": "node scripts/loadData.js"
+  },
+  "keywords": [],
+  "author": "",
+  "proxy": "http://localhost:4000",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.14.0",
+    "path": "^0.12.7",
+    "stream-json": "^1.9.1"
+  }
+}

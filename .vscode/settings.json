@@ -1,0 +1,21 @@
+{
+    // 1. Force each new terminal to load your login shell (~/.zshrc), so nvm is available
+    "terminal.integrated.shellArgs.osx": ["-l"],
+
+    // 2. Auto-format on save, using Prettier as the default formatter
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // 3. Auto-fix ESLint errors on save
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+
+    // 4. Trim trailing whitespace and insert a final newline
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+
+    // (Optional) suppress the Git ignore warning if your repo
+    // has a large .gitignore
+    "git.ignoreLimitWarning": true
+  }

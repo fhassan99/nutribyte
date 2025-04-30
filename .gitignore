@@ -1,0 +1,28 @@
+cat > .gitignore <<EOF
+# Node
+node_modules/
+npm-debug.log*
+
+# React build
+client/build/
+
+# Env files
+.env
+*.env
+
+# macOS
+.DS_Store
+EOF
+
+# backup of old .git folder
+.git-backup/
+.git-backup/
+node_modules/
+client/build/
+.git-backup/
+.env
+server/scripts/*.json
+server/scripts/*.json
+node_modules/
+client/build/
+.env

@@ -1,0 +1,16 @@
+{
+    "name": "nutribyte",
+    "version": "1.0.0",
+    "engines": {
+      "node": "16.x"
+    },
+    "scripts": {
+      "start": "node server/index.js",
+      "load-data": "node server/scripts/loadData.js",
+      "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
+    },
+    "dependencies": {
+      "dotenv": "^16.5.0"
+    }
+  }
+

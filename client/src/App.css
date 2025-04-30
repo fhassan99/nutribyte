@@ -1,0 +1,316 @@
+/* client/src/App.css */
+
+/* — HOMEPAGE — */
+.homepage {
+  background: var(--surface);
+  border-radius: 1rem;
+  margin: 2rem;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+.homepage h1 { color: var(--primary); font-size: 2.5rem; }
+.nutri-logo { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 1rem; }
+.react-logo { width: 200px; height: 120px; border-radius: 50%; margin: 0 auto 1rem; }
+.nav-buttons { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.home-btn-blue {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none; padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem; cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.home-btn-blue:hover { background: var(--secondary); transform: scale(1.05); }
+
+/* — SEARCH BAR & GRID — */
+.search-bar {
+  display: flex; margin: 1.5rem 0;
+}
+.search-bar input {
+  flex: 1; padding: 0.75rem 1rem;
+  border-radius: 9999px; border: 1px solid var(--text-secondary);
+  background: var(--bg); color: var(--text);
+}
+.search-bar button {
+  margin-left: .5rem; padding: .75rem 1.5rem;
+  border-radius: 9999px; border: none;
+  background: var(--primary); color: var(--on-primary);
+  cursor: pointer; transition: background .2s, transform .2s;
+}
+.search-bar button:hover { background: var(--secondary); transform: scale(1.05); }
+
+.grid {
+  display: grid; gap: 1rem; margin-top: 1rem;
+}
+@media(min-width:640px){ .grid { grid-template-columns: repeat(2,1fr); } }
+.card {
+  background: var(--surface); padding:1rem;
+  border-radius:1rem; box-shadow:0 4px 6px rgba(0,0,0,0.5);
+  cursor:pointer; transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: scale(1.02); box-shadow:0 6px 10px rgba(0,0,0,0.7); }
+
+/* — DETAIL & COMPARE TABLES — */
+.detail-container,
+.compare-container,
+.compare-section {
+  background: var(--surface); border-radius:1rem;
+  padding:2rem; margin-top:2rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+table {
+  width:100%; border-collapse:collapse; margin-bottom:1.5rem;
+}
+th, td {
+  border:1px solid var(--text-secondary);
+  padding:.75rem; text-align:left; color:var(--text);
+}
+th { background:var(--bg); }
+
+/* — Compare Page Layout — */
+.compare-page h1 {
+  margin-top: 1rem;
+  color: var(--primary);
+}
+.compare-controls {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+}
+.compare-box {
+  flex: 1;
+  min-width: 240px;
+}
+.compare-box label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+.compare-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.compare-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(187,134,252,0.3);
+}
+
+/* — Suggestions dropdown — */
+.suggestions {
+  margin-top: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.5rem;
+}
+.suggestion-card {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.suggestion-card:hover {
+  background: rgba(187,134,252,0.1);
+}
+.suggestion-card.selected {
+  background: rgba(187,134,252,0.2);
+  border-left: 4px solid var(--primary);
+}
+
+/* — Compare button — */
+.compare-btn {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  transition: background .2s, transform .2s;
+}
+.compare-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.compare-btn:not(:disabled):hover {
+  background: var(--secondary);
+  transform: scale(1.05);
+}
+
+/* — Comparison table popup — */
+.compare-table-container {
+  position: relative;
+  background: var(--surface);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+.compare-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color .2s;
+}
+.compare-close:hover {
+  color: var(--primary);
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.compare-table th,
+.compare-table td {
+  border: 1px solid var(--text-secondary);
+  padding: 0.75rem;
+  text-align: left;
+  color: var(--text);
+}
+.compare-table th {
+  background: var(--bg);
+  color: var(--secondary);
+}
+.compare-table .text-right {
+  text-align: right;
+}
+/* — Disable styling for compare-inputs when locked — */
+.compare-input:disabled {
+  background: #2a2a2a;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* — Compare / Reset buttons container — */
+.compare-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* — Reset button — */
+.reset-btn {
+  background: transparent;
+  color: var(--error);
+  border: 2px solid var(--error);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.reset-btn:hover {
+  background: var(--error);
+  color: var(--on-primary);
+}
+
+/* (rest of your compare-page CSS from previous answer) */
+
+/* — TRACK PAGE — */
+.track-controls {
+  display:flex; align-items:center; gap:1rem; margin:2rem 0;
+}
+.entries-table { margin-bottom:2rem; }
+
+
+
+.modal-close:hover {
+  color: var(--error);
+}
+
+/* ensure inputs/buttons match other pages */
+.modal-content input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.5rem;
+  color: var(--text);
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+
+.modal-content button:hover {
+  background: var(--secondary);
+}
+
+/* footer text under main button */
+.modal-footer-text {
+  text-align: center;
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+}
+.link-button {
+  background: none;
+  border: none;
+  color: var(--secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* time input styling */
+.time-input {
+  background: var(--bg);
+  border: 1px solid var(--text-secondary);
+  border-radius: .25rem;
+  padding: .25rem;
+  color: var(--text);
+  font-size: .9rem;
+}
+
+/* Delete button in table */
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--error);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.delete-btn:hover {
+  color: #ff4d4d;
+}
+
+/* Editable time input */
+.entries-table input[type="time"] {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+}
+
+/* Totals paragraph */
+.entries-table .totals {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+
+
+
