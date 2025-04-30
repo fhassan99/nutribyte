@@ -11,16 +11,20 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect if not logged in
+  // redirect to home if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
+
+  // --- STATE ---
   const [date, setDate]               = useState(() => new Date().toISOString().slice(0, 10));
   const [entries, setEntries]         = useState([]);
   const [search, setSearch]           = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [entryTime, setEntryTime]     = useState(() => new Date().toISOString().slice(11, 16)); // "HH:MM"
+  const [entryDesc, setEntryDesc]     = useState('');
 
   // load existing entries
   const loadEntries = useCallback(() => {
@@ -51,7 +55,7 @@ export default function TrackPage() {
     value: Number(value.toFixed(2))
   }));
 
-  // fetch suggestions when `search` changes or user clicks "Find"
+  // fetch suggestions when “search” changes
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
@@ -60,14 +64,20 @@ export default function TrackPage() {
     fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(result => {
-        // API now returns { foods, count }
+        // result = { foods: [...], count: N }
         const items = Array.isArray(result) ? result : result.foods;
         setSuggestions(items || []);
       })
       .catch(() => setSuggestions([]));
   }, [search]);
 
+  // when user clicks on a suggestion
   const addEntry = (food) => {
+    // require both time & description
+    if (!entryTime || !entryDesc.trim()) {
+      return alert('Please pick a time and enter a description before adding.');
+    }
+
     fetch(`/api/foods/${food.fdcId}`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
@@ -75,9 +85,9 @@ export default function TrackPage() {
           full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
 
         const entry = {
-          time: new Date().toLocaleTimeString('en-GB'),
           date,
-          description: full.description,
+          time: entryTime,
+          description: entryDesc.trim(),
           calories: getAmt('Energy'),
           protein:  getAmt('Protein'),
           carbs:    getAmt('Carbohydrate, by difference'),
@@ -97,8 +107,10 @@ export default function TrackPage() {
       .then(r => {
         if (!r.ok) throw new Error();
         loadEntries();
+        // reset inputs
         setSearch('');
         setSuggestions([]);
+        setEntryDesc('');
       })
       .catch(() => alert('Could not add entry. Please make sure you’re logged in.'));
   };
@@ -109,6 +121,7 @@ export default function TrackPage() {
 
       <h1>Track My Calories</h1>
 
+      {/* Logged‐in status */}
       {user && (
         <p style={{ color: 'var(--secondary)' }}>
           Logged in as <strong>{user.email}</strong>
@@ -128,7 +141,7 @@ export default function TrackPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Entries Table */}
+      {/* Entries table */}
       <div className="detail-container entries-table">
         <h2>Entries on {date}</h2>
         <table>
@@ -173,7 +186,7 @@ export default function TrackPage() {
         </p>
       </div>
 
-      {/* Date & Search */}
+      {/* Controls: date, time & description */}
       <div className="track-controls">
         <input
           type="date"
@@ -181,20 +194,42 @@ export default function TrackPage() {
           value={date}
           onChange={e => setDate(e.target.value)}
         />
-        <div className="search-bar" style={{ flex: 1 }}>
+        <input
+          type="time"
+          className="time-input"
+          value={entryTime}
+          onChange={e => setEntryTime(e.target.value)}
+        />
+        <input
+          placeholder="Entry description…"
+          className="compare-input"
+          value={entryDesc}
+          onChange={e => setEntryDesc(e.target.value)}
+        />
+        <div style={{ flex: 1, display: 'flex' }}>
           <input
-            placeholder="Search food..."
+            placeholder="Search food…"
+            className="compare-input"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button onClick={() => setSearch(s => s.trim())}>Find</button>
+          <button
+            className="compare-btn"
+            onClick={() => setSearch(s => s.trim())}
+          >
+            Find
+          </button>
         </div>
       </div>
 
       {/* Suggestions */}
       <div className="grid">
         {suggestions.map(f => (
-          <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
+          <div
+            key={f.fdcId}
+            className="card"
+            onClick={() => addEntry(f)}
+          >
             <h3>{f.description}</h3>
             <p>{f.brandOwner || 'Unknown Brand'}</p>
           </div>
