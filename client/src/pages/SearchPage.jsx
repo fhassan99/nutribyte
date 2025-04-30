@@ -13,22 +13,21 @@ export default function SearchPage() {
   const [error, setError]     = useState('');
   const navigate              = useNavigate();
 
-  // Fetch whenever query or page changes
+  // whenever the user hits “Search” (i.e. query/page changes), go fetch
   useEffect(() => {
     if (!query) return;
+
     setLoading(true);
+    setError('');
     fetch(`/api/foods?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
+      .then(res => res.json())           // always parse JSON, regardless of status
       .then(data => {
-        // API returns an array directly
-        setFoods(data);
-        setCount(data.length);
-        setError('');
+        const arr = Array.isArray(data) ? data : [];
+        setFoods(arr);
+        setCount(arr.length);
       })
-      .catch(() => {
+      .catch(err => {
+        console.error('Fetch error:', err);
         setError('Failed to load results');
         setFoods([]);
         setCount(0);
@@ -36,7 +35,7 @@ export default function SearchPage() {
       .finally(() => setLoading(false));
   }, [query, page, limit]);
 
-  const totalPages = Math.ceil(count / limit) || 1;
+  const totalPages = Math.max(1, Math.ceil(count / limit));
 
   return (
     <div className="container">
@@ -44,12 +43,10 @@ export default function SearchPage() {
         ← Home
       </button>
 
-      {/* Instructions */}
       <p style={{ color: 'var(--text-secondary)', marginTop: '2rem' }}>
         Type any food or brand name into the box below, then hit Search.
       </p>
 
-      {/* Search bar */}
       <div className="search-bar">
         <input
           placeholder="Search food or brand…"
@@ -57,8 +54,10 @@ export default function SearchPage() {
           onChange={e => setInput(e.target.value)}
         />
         <button
+          type="button"
           onClick={() => {
-            setQuery(input);
+            if (!input.trim()) return;
+            setQuery(input.trim());
             setPage(1);
           }}
         >
@@ -67,7 +66,12 @@ export default function SearchPage() {
       </div>
 
       {loading && <p>Loading…</p>}
-      {error   && <p className="error">{error}</p>}
+      {error && <p className="error">{error}</p>}
+
+      {/* if we’re done loading, no error, we did a query, but got zero results */}
+      {!loading && !error && query && foods.length === 0 && (
+        <p>No results for “{query}”</p>
+      )}
 
       {/* Results grid */}
       <div className="grid">
@@ -103,6 +107,7 @@ export default function SearchPage() {
     </div>
   );
 }
+
 
 
 

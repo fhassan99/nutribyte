@@ -2,30 +2,36 @@
 import React, { useState, useEffect } from 'react';
 
 export default function ComparePage() {
-  const [search1, setSearch1]       = useState('');
-  const [search2, setSearch2]       = useState('');
-  const [sugs1, setSugs1]           = useState([]);
-  const [sugs2, setSugs2]           = useState([]);
-  const [sel1, setSel1]             = useState(null);
-  const [sel2, setSel2]             = useState(null);
-  const [showTable, setShowTable]   = useState(false);
-  const [nutrients, setNutrients]   = useState([]);
+  const [search1, setSearch1]     = useState('');
+  const [search2, setSearch2]     = useState('');
+  const [sugs1, setSugs1]         = useState([]);
+  const [sugs2, setSugs2]         = useState([]);
+  const [sel1, setSel1]           = useState(null);
+  const [sel2, setSel2]           = useState(null);
+  const [showTable, setShowTable] = useState(false);
+  const [nutrients, setNutrients] = useState([]);
 
   // Suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable) return setSugs1([]);
+    if (!search1 || showTable) {
+      setSugs1([]);
+      return;
+    }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(j => setSugs1(j))
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(data => Array.isArray(data) ? setSugs1(data) : setSugs1([]))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
   // Suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable) return setSugs2([]);
+    if (!search2 || showTable) {
+      setSugs2([]);
+      return;
+    }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(j => setSugs2(j))
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(data => Array.isArray(data) ? setSugs2(data) : setSugs2([]))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
@@ -36,12 +42,10 @@ export default function ComparePage() {
       fetch(`/api/foods/${sel1.fdcId}`).then(r => r.json()),
       fetch(`/api/foods/${sel2.fdcId}`).then(r => r.json())
     ]);
-
     const allNames = Array.from(new Set([
       ...f1.nutrients.map(n => n.nutrientName),
       ...f2.nutrients.map(n => n.nutrientName)
     ]));
-
     setNutrients(allNames.map(name => {
       const n1 = f1.nutrients.find(n => n.nutrientName === name) || {};
       const n2 = f2.nutrients.find(n => n.nutrientName === name) || {};
@@ -52,13 +56,14 @@ export default function ComparePage() {
         unit: n1.nutrientUnit || n2.nutrientUnit || ''
       };
     }));
-
     setShowTable(true);
   };
 
   const reset = () => {
-    setSearch1(''); setSearch2('');
-    setSel1(null);   setSel2(null);
+    setSearch1('');
+    setSearch2('');
+    setSel1(null);
+    setSel2(null);
     setShowTable(false);
     setNutrients([]);
   };
@@ -179,6 +184,7 @@ export default function ComparePage() {
     </div>
   );
 }
+
 
 
 
