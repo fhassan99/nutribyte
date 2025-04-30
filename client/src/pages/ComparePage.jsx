@@ -1,4 +1,3 @@
-// client/src/pages/ComparePage.jsx
 import React, { useState, useEffect } from 'react';
 
 export default function ComparePage() {
@@ -11,41 +10,44 @@ export default function ComparePage() {
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
-  // Suggestions for box 1
+  // Fetch suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable) {
+    if (!search1.trim() || showTable) {
       setSugs1([]);
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setSugs1(data))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
-  // Suggestions for box 2
+  // Fetch suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable) {
+    if (!search2.trim() || showTable) {
       setSugs2([]);
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setSugs2(data))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
-  // Compare action
+  // Compare selected foods
   const compare = async () => {
     if (!sel1 || !sel2) return;
     const [f1, f2] = await Promise.all([
       fetch(`/api/foods/${sel1.fdcId}`).then(r => r.json()),
       fetch(`/api/foods/${sel2.fdcId}`).then(r => r.json())
     ]);
+
+    // merge nutrient names
     const allNames = Array.from(new Set([
       ...f1.nutrients.map(n => n.nutrientName),
       ...f2.nutrients.map(n => n.nutrientName)
     ]));
+
     setNutrients(allNames.map(name => {
       const n1 = f1.nutrients.find(n => n.nutrientName === name) || {};
       const n2 = f2.nutrients.find(n => n.nutrientName === name) || {};
@@ -59,6 +61,7 @@ export default function ComparePage() {
     setShowTable(true);
   };
 
+  // Reset comparison
   const reset = () => {
     setSearch1('');
     setSearch2('');
@@ -184,6 +187,7 @@ export default function ComparePage() {
     </div>
   );
 }
+
 
 
 

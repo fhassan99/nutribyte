@@ -1,9 +1,8 @@
-// client/src/pages/HomePage.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaAppleAlt, FaCarrot, FaDrumstickBite, FaLink } from 'react-icons/fa';
-import { LoginModal } from '../components/LoginModal';
-import { RegistrationModal } from '../components/RegistrationModal';
+import LoginModal from '../components/LoginModal';
+import RegistrationModal from '../components/RegistrationModal';
 import { AuthContext } from '../context/AuthContext';
 import nutriLogo from '../assets/profile.svg';
 import reactLogo from '../assets/logo.svg';
@@ -14,25 +13,25 @@ export default function HomePage() {
   const [showRegister, setShowRegister] = useState(false);
   const navigate                        = useNavigate();
 
-  // Prompt login on first visit if not already logged in
+  // Prompt login on first visit
   useEffect(() => {
     if (!user) setShowLogin(true);
   }, [user]);
 
   return (
-    <div className="homepage">
+    <div className="homepage container">
       <img src={reactLogo} alt="React logo" className="react-logo" />
       <img src={nutriLogo} alt="NutriByte logo" className="nutri-logo" />
 
       <h1>Welcome to NutriByte</h1>
       <div className="home-icons">
-        <FaAppleAlt size={32} style={{ margin: '0 .5rem' }} />
-        <FaCarrot    size={32} style={{ margin: '0 .5rem' }} />
-        <FaDrumstickBite size={32} style={{ margin: '0 .5rem' }} />
+        <FaAppleAlt size={32} />
+        <FaCarrot    size={32} />
+        <FaDrumstickBite size={32} />
       </div>
 
       {user && (
-        <p style={{ marginBottom: '1rem', color: 'var(--secondary)' }}>
+        <p className="text-secondary">
           Logged in as <strong>{user.email}</strong>
         </p>
       )}
@@ -44,9 +43,9 @@ export default function HomePage() {
           href="https://fdc.nal.usda.gov/download-datasets"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: 'var(--primary)' }}
+          className="link-primary"
         >
-          USDA Food Data <FaLink style={{ verticalAlign: 'middle' }} />
+          USDA Food Data <FaLink />
         </a>
       </p>
       <p className="creator">Created by Farhan Hassan</p>
@@ -101,6 +100,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
