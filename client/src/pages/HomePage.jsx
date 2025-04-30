@@ -1,5 +1,7 @@
-import React, { useState, useContext } from 'react';
+// client/src/pages/HomePage.jsx
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaAppleAlt, FaCarrot, FaDrumstickBite, FaLink } from 'react-icons/fa';
 import { LoginModal } from '../components/LoginModal';
 import { RegistrationModal } from '../components/RegistrationModal';
 import { AuthContext } from '../context/AuthContext';
@@ -8,9 +10,14 @@ import reactLogo from '../assets/logo.svg';
 
 export default function HomePage() {
   const { user, logout } = useContext(AuthContext);
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLogin, setShowLogin]       = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const navigate = useNavigate();
+  const navigate                        = useNavigate();
+
+  // Prompt login on first visit if not already logged in
+  useEffect(() => {
+    if (!user) setShowLogin(true);
+  }, [user]);
 
   return (
     <div className="homepage">
@@ -18,6 +25,11 @@ export default function HomePage() {
       <img src={nutriLogo} alt="NutriByte logo" className="nutri-logo" />
 
       <h1>Welcome to NutriByte</h1>
+      <div className="home-icons">
+        <FaAppleAlt size={32} style={{ margin: '0 .5rem' }} />
+        <FaCarrot    size={32} style={{ margin: '0 .5rem' }} />
+        <FaDrumstickBite size={32} style={{ margin: '0 .5rem' }} />
+      </div>
 
       {user && (
         <p style={{ marginBottom: '1rem', color: 'var(--secondary)' }}>
@@ -26,19 +38,28 @@ export default function HomePage() {
       )}
 
       <p>Your personal nutrition explorer powered by USDA data.</p>
-      <p>Register or Log in to compare foods and track your calories!</p>
+      <p>
+        Data sourced from{' '}
+        <a
+          href="https://fdc.nal.usda.gov/download-datasets"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--primary)' }}
+        >
+          USDA Food Data <FaLink style={{ verticalAlign: 'middle' }} />
+        </a>
+      </p>
       <p className="creator">Created by Farhan Hassan</p>
 
       <div className="nav-buttons">
         <button className="home-btn-blue" onClick={() => navigate('/search')}>
           Search Foods
         </button>
-
+        <button className="home-btn-blue" onClick={() => navigate('/compare')}>
+          Compare Foods
+        </button>
         {user ? (
           <>
-            <button className="home-btn-blue" onClick={() => navigate('/compare')}>
-              Compare Foods
-            </button>
             <button className="home-btn-blue" onClick={() => navigate('/track')}>
               Track My Calories
             </button>
@@ -80,6 +101,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
