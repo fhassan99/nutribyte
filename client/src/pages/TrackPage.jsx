@@ -1,3 +1,4 @@
+// client/src/pages/TrackPage.jsx
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -10,24 +11,24 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect to home if not logged in
+  // redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
-
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [entries, setEntries] = useState([]);
-  const [search, setSearch] = useState('');
+  const [date, setDate]               = useState(() => new Date().toISOString().slice(0, 10));
+  const [entries, setEntries]         = useState([]);
+  const [search, setSearch]           = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
+  // load existing entries
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => (res.ok ? res.json() : Promise.reject()))
-      .then(data => setEntries(data))
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(setEntries)
       .catch(() => setEntries([]));
   }, [date, token]);
 
@@ -35,30 +36,34 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [loadEntries, token]);
 
-  // compute totals
-  const totals = entries.reduce(
-    (acc, e) => {
-      acc.Calories += e.calories || 0;
-      acc.Protein  += e.protein  || 0;
-      acc.Carbs    += e.carbs    || 0;
-      acc.Fat      += e.fat      || 0;
-      acc.Sugars   += e.sugars   || 0;
-      return acc;
-    },
-    { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 }
-  );
+  // compute daily totals
+  const totals = entries.reduce((acc, e) => {
+    acc.Calories += e.calories || 0;
+    acc.Protein  += e.protein  || 0;
+    acc.Carbs    += e.carbs    || 0;
+    acc.Fat      += e.fat      || 0;
+    acc.Sugars   += e.sugars   || 0;
+    return acc;
+  }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
 
   const chartData = Object.entries(totals).map(([name, value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
 
-  // dynamic suggestions
+  // fetch suggestions when `search` changes or user clicks "Find"
   useEffect(() => {
-    if (!search) return setSuggestions([]);
+    if (!search) {
+      setSuggestions([]);
+      return;
+    }
     fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(data => setSuggestions(data))
+      .then(result => {
+        // API now returns { foods, count }
+        const items = Array.isArray(result) ? result : result.foods;
+        setSuggestions(items || []);
+      })
       .catch(() => setSuggestions([]));
   }, [search]);
 
@@ -70,9 +75,9 @@ export default function TrackPage() {
           full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
 
         const entry = {
-          fdcId: full.fdcId,
-          description: full.description,
+          time: new Date().toLocaleTimeString('en-GB'),
           date,
+          description: full.description,
           calories: getAmt('Energy'),
           protein:  getAmt('Protein'),
           carbs:    getAmt('Carbohydrate, by difference'),
@@ -182,7 +187,7 @@ export default function TrackPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button>Find</button>
+          <button onClick={() => setSearch(s => s.trim())}>Find</button>
         </div>
       </div>
 
@@ -191,7 +196,7 @@ export default function TrackPage() {
         {suggestions.map(f => (
           <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
             <h3>{f.description}</h3>
-            <p>{f.brandOwner}</p>
+            <p>{f.brandOwner || 'Unknown Brand'}</p>
           </div>
         ))}
       </div>
