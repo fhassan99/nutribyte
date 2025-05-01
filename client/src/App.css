@@ -256,11 +256,14 @@ th {
   background: transparent;
   color: var(--error);
   border: 2px solid var(--error);
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  font-size: 1rem;
+  padding: 0.75rem 2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
   cursor: pointer;
   transition: background .2s, color .2s;
 }
+
 .reset-btn:hover {
   background: var(--error);
   color: var(--on-primary);
