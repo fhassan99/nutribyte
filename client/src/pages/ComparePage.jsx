@@ -1,4 +1,4 @@
-// client/src/pages/ComparePage.jsx
+// ComparePage.jsx
 import React, { useState, useEffect } from 'react';
 
 export default function ComparePage() {
@@ -18,7 +18,10 @@ export default function ComparePage() {
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(res => {
+        if (!res.ok) throw new Error(res.status);
+        return res.json();
+      })
       .then(data => setSugs1(data.foods))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
@@ -30,7 +33,10 @@ export default function ComparePage() {
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(res => {
+        if (!res.ok) throw new Error(res.status);
+        return res.json();
+      })
       .then(data => setSugs2(data.foods))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
@@ -92,24 +98,22 @@ export default function ComparePage() {
               setSel1(null);
             }}
           />
-          {sugs1.length > 0 && !sel1 && (
-            <div className="suggestions">
-              {sugs1.map(f => (
-                <div
-                  key={f.fdcId}
-                  className="suggestion-card"
-                  onClick={() => {
-                    setSel1(f);
-                    setSearch1(f.description);
-                    setSugs1([]);
-                  }}
-                >
-                  <strong>{f.description}</strong>
-                  <small>{f.brandOwner}</small>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions">
+            {sugs1.map(f => (
+              <div
+                key={f.fdcId}
+                className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
+                onClick={() => {
+                  setSel1(f);
+                  setSearch1(f.description);
+                  setSugs1([]);
+                }}
+              >
+                <strong>{f.description}</strong>
+                <small>{f.brandOwner}</small>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Second food */}
@@ -125,24 +129,22 @@ export default function ComparePage() {
               setSel2(null);
             }}
           />
-          {sugs2.length > 0 && !sel2 && (
-            <div className="suggestions">
-              {sugs2.map(f => (
-                <div
-                  key={f.fdcId}
-                  className="suggestion-card"
-                  onClick={() => {
-                    setSel2(f);
-                    setSearch2(f.description);
-                    setSugs2([]);
-                  }}
-                >
-                  <strong>{f.description}</strong>
-                  <small>{f.brandOwner}</small>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions">
+            {sugs2.map(f => (
+              <div
+                key={f.fdcId}
+                className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
+                onClick={() => {
+                  setSel2(f);
+                  setSearch2(f.description);
+                  setSugs2([]);
+                }}
+              >
+                <strong>{f.description}</strong>
+                <small>{f.brandOwner}</small>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
