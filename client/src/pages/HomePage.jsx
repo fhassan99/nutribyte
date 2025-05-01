@@ -13,10 +13,11 @@ export default function HomePage() {
   const [showRegister, setShowRegister] = useState(false);
   const navigate                        = useNavigate();
 
-  // Prompt login on first visit
+  // Ensure user is signed out on initial visit
   useEffect(() => {
-    if (!user) setShowLogin(true);
-  }, [user]);
+    if (user) logout();
+    else setShowLogin(true);
+  }, []); // run once on mount only
 
   return (
     <div className="homepage container">
@@ -29,12 +30,6 @@ export default function HomePage() {
         <FaCarrot    size={32} />
         <FaDrumstickBite size={32} />
       </div>
-
-      {user && (
-        <p className="text-secondary">
-          Logged in as <strong>{user.email}</strong>
-        </p>
-      )}
 
       <p>Your personal nutrition explorer powered by USDA data.</p>
       <p>
@@ -57,25 +52,12 @@ export default function HomePage() {
         <button className="home-btn-blue" onClick={() => navigate('/compare')}>
           Compare Foods
         </button>
-        {user ? (
-          <>
-            <button className="home-btn-blue" onClick={() => navigate('/track')}>
-              Track My Calories
-            </button>
-            <button className="home-btn-blue" onClick={logout}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="home-btn-blue" onClick={() => setShowLogin(true)}>
-              Login
-            </button>
-            <button className="home-btn-blue" onClick={() => setShowRegister(true)}>
-              Register
-            </button>
-          </>
-        )}
+        <button className="home-btn-blue" onClick={() => setShowLogin(true)}>
+          Login
+        </button>
+        <button className="home-btn-blue" onClick={() => setShowRegister(true)}>
+          Register
+        </button>
       </div>
 
       {showLogin && (
@@ -100,6 +82,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
