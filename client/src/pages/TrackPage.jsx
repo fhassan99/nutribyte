@@ -11,27 +11,25 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect to home if not logged in
+  // redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
 
-  // --- STATE ---
-  const [date, setDate]               = useState(() => new Date().toISOString().slice(0, 10));
+  // state
+  const [date, setDate]               = useState(() => new Date().toISOString().slice(0,10));
   const [entries, setEntries]         = useState([]);
   const [search, setSearch]           = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [entryTime, setEntryTime]     = useState(() => new Date().toISOString().slice(11, 16)); // "HH:MM"
-  const [entryDesc, setEntryDesc]     = useState('');
 
   // load existing entries
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(setEntries)
       .catch(() => setEntries([]));
   }, [date, token]);
@@ -40,54 +38,54 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [loadEntries, token]);
 
-  // compute daily totals
+  // daily totals for chart
   const totals = entries.reduce((acc, e) => {
-    acc.Calories += e.calories || 0;
-    acc.Protein  += e.protein  || 0;
-    acc.Carbs    += e.carbs    || 0;
-    acc.Fat      += e.fat      || 0;
-    acc.Sugars   += e.sugars   || 0;
+    acc.Calories += e.calories  || 0;
+    acc.Protein  += e.protein   || 0;
+    acc.Carbs    += e.carbs     || 0;
+    acc.Fat      += e.fat       || 0;
+    acc.Sugars   += e.sugars    || 0;
     return acc;
-  }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
+  }, { Calories:0, Protein:0, Carbs:0, Fat:0, Sugars:0 });
 
   const chartData = Object.entries(totals).map(([name, value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
 
-  // fetch suggestions when “search” changes
-  useEffect(() => {
-    if (!search) {
+  // fetch suggestions when “Find” clicked
+  const fetchSuggestions = () => {
+    const q = search.trim();
+    if (!q) {
       setSuggestions([]);
       return;
     }
-    fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
-      .then(r => (r.ok ? r.json() : Promise.reject()))
+    fetch(`/api/foods?search=${encodeURIComponent(q)}&page=1&limit=10`)
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(result => {
-        // result = { foods: [...], count: N }
+        // our API now returns { foods, count }
         const items = Array.isArray(result) ? result : result.foods;
         setSuggestions(items || []);
       })
       .catch(() => setSuggestions([]));
-  }, [search]);
+  };
 
-  // when user clicks on a suggestion
+  // add one entry using current time & food.description
   const addEntry = (food) => {
-    // require both time & description
-    if (!entryTime || !entryDesc.trim()) {
-      return alert('Please pick a time and enter a description before adding.');
-    }
+    const now = new Date();
+    const time = now.toTimeString().split(' ')[0]; // "HH:MM:SS"
 
+    // re-fetch full nutrient details
     fetch(`/api/foods/${food.fdcId}`)
-      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(full => {
         const getAmt = name =>
           full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
 
         const entry = {
           date,
-          time: entryTime,
-          description: entryDesc.trim(),
+          time,
+          description: full.description,
           calories: getAmt('Energy'),
           protein:  getAmt('Protein'),
           carbs:    getAmt('Carbohydrate, by difference'),
@@ -98,8 +96,8 @@ export default function TrackPage() {
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            'Content-Type':  'application/json',
+            Authorization:   `Bearer ${token}`
           },
           body: JSON.stringify(entry)
         });
@@ -107,21 +105,20 @@ export default function TrackPage() {
       .then(r => {
         if (!r.ok) throw new Error();
         loadEntries();
-        // reset inputs
-        setSearch('');
-        setSuggestions([]);
-        setEntryDesc('');
+        setSuggestions([]);    // clear list
+        setSearch('');         // clear search
       })
       .catch(() => alert('Could not add entry. Please make sure you’re logged in.'));
   };
 
   return (
     <div className="container">
-      <button className="home-btn-blue" onClick={() => navigate(-1)}>← Back</button>
+      <button className="home-btn-blue" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
 
       <h1>Track My Calories</h1>
 
-      {/* Logged‐in status */}
       {user && (
         <p style={{ color: 'var(--secondary)' }}>
           Logged in as <strong>{user.email}</strong>
@@ -141,7 +138,7 @@ export default function TrackPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Entries table */}
+      {/* Entries Table */}
       <div className="detail-container entries-table">
         <h2>Entries on {date}</h2>
         <table>
@@ -186,7 +183,7 @@ export default function TrackPage() {
         </p>
       </div>
 
-      {/* Controls: date, time & description */}
+      {/* Date + Search Bar */}
       <div className="track-controls">
         <input
           type="date"
@@ -194,42 +191,21 @@ export default function TrackPage() {
           value={date}
           onChange={e => setDate(e.target.value)}
         />
-        <input
-          type="time"
-          className="time-input"
-          value={entryTime}
-          onChange={e => setEntryTime(e.target.value)}
-        />
-        <input
-          placeholder="Entry description…"
-          className="compare-input"
-          value={entryDesc}
-          onChange={e => setEntryDesc(e.target.value)}
-        />
-        <div style={{ flex: 1, display: 'flex' }}>
+
+        <div className="search-bar" style={{ flex: 1 }}>
           <input
-            placeholder="Search food…"
-            className="compare-input"
+            placeholder="Search food to add…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button
-            className="compare-btn"
-            onClick={() => setSearch(s => s.trim())}
-          >
-            Find
-          </button>
+          <button onClick={fetchSuggestions}>Find</button>
         </div>
       </div>
 
-      {/* Suggestions */}
+      {/* Suggestions Grid */}
       <div className="grid">
         {suggestions.map(f => (
-          <div
-            key={f.fdcId}
-            className="card"
-            onClick={() => addEntry(f)}
-          >
+          <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
             <h3>{f.description}</h3>
             <p>{f.brandOwner || 'Unknown Brand'}</p>
           </div>
@@ -238,6 +214,7 @@ export default function TrackPage() {
     </div>
   );
 }
+
 
 
 
