@@ -68,6 +68,8 @@ export default function HomePage() {
         </a>
       </p>
       <p className="creator">Created by Farhan Hassan</p>
+      <>
+      </>
 
       <div className="nav-buttons">
         <button className="home-btn-blue" onClick={() => navigate('/search')}>
