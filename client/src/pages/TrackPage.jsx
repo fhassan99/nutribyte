@@ -1,5 +1,4 @@
-// client/src/pages/TrackPage.jsx
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+mport React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import {
@@ -11,25 +10,18 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
 
-  // ── form state ─────────────────────────────────────────────────────────────
-  const [date,  setDate]  = useState(
-    () => new Date().toISOString().slice(0, 10)
-  );
-  const [time,  setTime]  = useState(
-    () => new Date().toISOString().slice(11, 16)  // HH:MM
-  );
-  const [input, setInput] = useState('');  // what user types
-  const [query, setQuery] = useState('');  // only changes on Find click
+  const [date,  setDate]  = useState(() => new Date().toISOString().slice(0, 10));
+  const [time,  setTime]  = useState(() => new Date().toISOString().slice(11, 16));
+  const [input, setInput] = useState('');
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
-  // ── existing entries & chart ──────────────────────────────────────────────
   const [entries, setEntries] = useState([]);
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
@@ -44,7 +36,6 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [token, loadEntries]);
 
-  // compute totals & chart data
   const totals = entries.reduce((acc, e) => {
     acc.Calories += e.calories || 0;
     acc.Protein  += e.protein  || 0;
@@ -59,7 +50,6 @@ export default function TrackPage() {
     value: Number(value.toFixed(2))
   }));
 
-  // ── fetch suggestions only on “Find” ───────────────────────────────────────
   useEffect(() => {
     if (!query) {
       setSuggestions([]);
@@ -71,13 +61,11 @@ export default function TrackPage() {
       .catch(() => setSuggestions([]));
   }, [query]);
 
-  // ── add one calorie entry ─────────────────────────────────────────────────
   const addEntry = food => {
     fetch(`/api/foods/${food.fdcId}`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
-        const getAmt = name =>
-          full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
+        const getAmt = name => full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
 
         const entry = {
           date,
@@ -119,10 +107,9 @@ export default function TrackPage() {
 
       <h1>Track My Calories</h1>
       <p style={{ color: 'var(--secondary)' }}>
-        Logged in as <strong>{user.email}</strong>
+        Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
       </p>
 
-      {/* Chart */}
       <div style={{ width: '100%', height: 300, marginBottom: '2rem' }}>
         <ResponsiveContainer>
           <BarChart data={chartData}>
@@ -135,7 +122,6 @@ export default function TrackPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Entries Table */}
       <div className="detail-container entries-table">
         <h2>Entries on {date}</h2>
         <table>
@@ -180,7 +166,6 @@ export default function TrackPage() {
         </p>
       </div>
 
-      {/* Date, Time & Search Form */}
       <div className="track-controls">
         <input
           type="date"
@@ -210,7 +195,6 @@ export default function TrackPage() {
         </div>
       </div>
 
-      {/* Suggestions */}
       <div className="grid">
         {suggestions.map(f => (
           <div
@@ -226,6 +210,7 @@ export default function TrackPage() {
     </div>
   );
 }
+
 
 
 
