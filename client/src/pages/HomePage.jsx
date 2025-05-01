@@ -23,6 +23,18 @@ export default function HomePage() {
 
   return (
     <div className="homepage container">
+      {/* Top right account info */}
+      {user && (
+        <div style={{ position: 'absolute', top: 20, right: 20, textAlign: 'right' }}>
+          <p className="text-secondary">
+            Logged in as <strong>{user.firstName} {user.lastName}</strong>
+          </p>
+          <button className="home-btn-blue" onClick={logout}>
+            Logout
+          </button>
+        </div>
+      )}
+
       <img src={reactLogo} alt="React logo" className="react-logo" />
       <img src={nutriLogo} alt="NutriByte logo" className="nutri-logo" />
 
@@ -54,40 +66,10 @@ export default function HomePage() {
         <button className="home-btn-blue" onClick={() => navigate('/compare')}>
           Compare Foods
         </button>
-
-        {user ? (
-          <>
-            <button className="home-btn-blue" onClick={() => navigate('/track')}>
-              Track My Calories
-            </button>
-            <button className="home-btn-blue" onClick={logout}>
-              Logout
-            </button>
-            <p className="text-secondary">
-              Logged in as <strong>{user.email}</strong>
-            </p>
-          </>
-        ) : (
-          <>
-            <button
-              className="home-btn-blue"
-              onClick={() => {
-                setShowRegister(false);
-                setShowLogin(true);
-              }}
-            >
-              Login
-            </button>
-            <button
-              className="home-btn-blue"
-              onClick={() => {
-                setShowLogin(false);
-                setShowRegister(true);
-              }}
-            >
-              Register
-            </button>
-          </>
+        {user && (
+          <button className="home-btn-blue" onClick={() => navigate('/track')}>
+            Track My Calories
+          </button>
         )}
       </div>
 
@@ -113,6 +95,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
