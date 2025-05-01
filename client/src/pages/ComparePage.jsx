@@ -1,3 +1,4 @@
+// client/src/pages/ComparePage.jsx
 import React, { useState, useEffect } from 'react';
 
 export default function ComparePage() {
@@ -10,37 +11,22 @@ export default function ComparePage() {
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
-  // Suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable) {
-      setSugs1([]);
-      return;
-    }
+    if (!search1 || showTable) return setSugs1([]);
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
-      .then(data => setSugs1(data.foods))
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(j => setSugs1(j))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
-  // Suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable) {
-      setSugs2([]);
-      return;
-    }
+    if (!search2 || showTable) return setSugs2([]);
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
-      .then(data => setSugs2(data.foods))
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(j => setSugs2(j))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
-  // Compare action
   const compare = async () => {
     if (!sel1 || !sel2) return;
     const [f1, f2] = await Promise.all([
@@ -68,10 +54,8 @@ export default function ComparePage() {
   };
 
   const reset = () => {
-    setSearch1('');
-    setSearch2('');
-    setSel1(null);
-    setSel2(null);
+    setSearch1(''); setSearch2('');
+    setSel1(null);   setSel2(null);
     setShowTable(false);
     setNutrients([]);
   };
@@ -97,22 +81,26 @@ export default function ComparePage() {
               setSel1(null);
             }}
           />
-          <div className="suggestions">
-            {sugs1.map(f => (
-              <div
-                key={f.fdcId}
-                className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
-                onClick={() => {
-                  setSel1(f);
-                  setSearch1(f.description);
-                  setSugs1([]);
-                }}
-              >
-                <strong>{f.description}</strong>
-                <small>{f.brandOwner}</small>
-              </div>
-            ))}
-          </div>
+
+          {/* only render dropdown if there's suggestions AND no selection yet */}
+          {sugs1.length > 0 && !sel1 && (
+            <div className="suggestions">
+              {sugs1.map(f => (
+                <div
+                  key={f.fdcId}
+                  className="suggestion-card"
+                  onClick={() => {
+                    setSel1(f);
+                    setSearch1(f.description);
+                    setSugs1([]);  // clear just in case
+                  }}
+                >
+                  <strong>{f.description}</strong>
+                  <small>{f.brandOwner}</small>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Second food */}
@@ -128,22 +116,25 @@ export default function ComparePage() {
               setSel2(null);
             }}
           />
-          <div className="suggestions">
-            {sugs2.map(f => (
-              <div
-                key={f.fdcId}
-                className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
-                onClick={() => {
-                  setSel2(f);
-                  setSearch2(f.description);
-                  setSugs2([]);
-                }}
-              >
-                <strong>{f.description}</strong>
-                <small>{f.brandOwner}</small>
-              </div>
-            ))}
-          </div>
+
+          {sugs2.length > 0 && !sel2 && (
+            <div className="suggestions">
+              {sugs2.map(f => (
+                <div
+                  key={f.fdcId}
+                  className="suggestion-card"
+                  onClick={() => {
+                    setSel2(f);
+                    setSearch2(f.description);
+                    setSugs2([]);
+                  }}
+                >
+                  <strong>{f.description}</strong>
+                  <small>{f.brandOwner}</small>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
