@@ -122,6 +122,35 @@ export default function TrackPage() {
         </ResponsiveContainer>
       </div>
 
+      <div className="track-controls">
+        <input
+          type="date"
+          className="date-picker"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+        />
+        <input
+          type="time"
+          className="time-input"
+          value={time}
+          onChange={e => setTime(e.target.value)}
+        />
+        <div className="search-bar" style={{ flex: 1 }}>
+          <input
+            placeholder="Search food…"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              if (input.trim()) setQuery(input.trim());
+            }}
+          >
+            Find
+          </button>
+        </div>
+      </div>
+      
       <div className="detail-container entries-table">
         <h2>Entries on {date}</h2>
         <table>
@@ -164,35 +193,6 @@ export default function TrackPage() {
           Fat {totals.Fat.toFixed(2)},&nbsp;
           Sugars {totals.Sugars.toFixed(2)}
         </p>
-      </div>
-
-      <div className="track-controls">
-        <input
-          type="date"
-          className="date-picker"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-        />
-        <input
-          type="time"
-          className="time-input"
-          value={time}
-          onChange={e => setTime(e.target.value)}
-        />
-        <div className="search-bar" style={{ flex: 1 }}>
-          <input
-            placeholder="Search food…"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              if (input.trim()) setQuery(input.trim());
-            }}
-          >
-            Find
-          </button>
-        </div>
       </div>
 
       <div className="grid">
