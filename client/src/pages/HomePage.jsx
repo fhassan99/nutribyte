@@ -11,13 +11,16 @@ export default function HomePage() {
   const { user, logout } = useContext(AuthContext);
   const [showLogin, setShowLogin]       = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const navigate                        = useNavigate();
+  const navigate = useNavigate();
 
-  // Ensure user is signed out on initial visit
+  // On mount: log out and show login modal
   useEffect(() => {
-    if (user) logout();
-    else setShowLogin(true);
-  }, []); // run once on mount only
+    if (user) {
+      logout(); // Ensure no one is logged in
+    }
+    setShowRegister(false);
+    setShowLogin(true); // Show login modal by default
+  }, []); // Only runs once on initial load
 
   return (
     <div className="homepage container">
@@ -27,7 +30,7 @@ export default function HomePage() {
       <h1>Welcome to NutriByte</h1>
       <div className="home-icons">
         <FaAppleAlt size={32} />
-        <FaCarrot    size={32} />
+        <FaCarrot size={32} />
         <FaDrumstickBite size={32} />
       </div>
 
@@ -52,10 +55,22 @@ export default function HomePage() {
         <button className="home-btn-blue" onClick={() => navigate('/compare')}>
           Compare Foods
         </button>
-        <button className="home-btn-blue" onClick={() => setShowLogin(true)}>
+        <button
+          className="home-btn-blue"
+          onClick={() => {
+            setShowRegister(false);
+            setShowLogin(true);
+          }}
+        >
           Login
         </button>
-        <button className="home-btn-blue" onClick={() => setShowRegister(true)}>
+        <button
+          className="home-btn-blue"
+          onClick={() => {
+            setShowLogin(false);
+            setShowRegister(true);
+          }}
+        >
           Register
         </button>
       </div>
@@ -82,6 +97,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
