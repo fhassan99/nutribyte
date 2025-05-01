@@ -19,7 +19,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-      <h2 id="login-heading" style={{ marginBottom: '3rem' }}>
+      <h2 id="login-heading" style={{ marginBottom: '2rem' }}>
       Log in to track your calories
       </h2>
         <input
