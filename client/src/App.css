@@ -314,11 +314,14 @@ th {
   color: var(--text-secondary);
 }
 .link-button {
-  background-color: var(--surface);
+  background-color: var(--surface); /* match modal bg */
   border: none;
-  color: var(--primary);
+  color: var(--primary);            /* match purple */
   text-decoration: underline;
   cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* — Date & delete inputs — */
