@@ -100,114 +100,125 @@ export default function TrackPage() {
   if (!user) return <p>Please log in to track calories.</p>;
 
   return (
-    <div className="container">
-      <button className="home-btn-blue" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+    <div className="container" style={{ maxWidth: "100%", overflowX: "hidden" }}>
+  <button className="home-btn-blue" onClick={() => navigate(-1)}>
+    ← Back
+  </button>
 
-      <h1>Track My Calories</h1>
-      <p style={{ color: 'var(--secondary)' }}>
-        Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
-      </p>
+  <h1>Track My Calories</h1>
+  <p style={{ color: 'var(--secondary)' }}>
+    Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
+  </p>
 
-      <div style={{ width: '100%', height: 300, marginBottom: '2rem' }}>
-        <ResponsiveContainer>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" stroke="var(--text-secondary)" />
-            <YAxis stroke="var(--text-secondary)" />
-            <Tooltip />
-            <Bar dataKey="value" fill="var(--primary)" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+  {/* Chart */}
+  <div style={{ width: '100%', height: 300, marginBottom: '1rem' }}>
+    <ResponsiveContainer>
+      <BarChart data={chartData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" stroke="var(--text-secondary)" />
+        <YAxis stroke="var(--text-secondary)" />
+        <Tooltip />
+        <Bar dataKey="value" fill="var(--primary)" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 
-      <div className="track-controls">
-        <input
-          type="date"
-          className="date-picker"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-        />
-        <input
-          type="time"
-          className="time-input"
-          value={time}
-          onChange={e => setTime(e.target.value)}
-        />
-        <div className="search-bar" style={{ flex: 1 }}>
-          <input
-            placeholder="Search food…"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              if (input.trim()) setQuery(input.trim());
-            }}
-          >
-            Find
-          </button>
-        </div>
-      </div>
-      
-      <div className="detail-container entries-table">
-        <h2>Entries on {date}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Description</th>
-              <th>Cal</th>
-              <th>Prot</th>
-              <th>Carb</th>
-              <th>Fat</th>
-              <th>Sug</th>
+  {/* Date + Time Pickers */}
+  <div
+    className="track-controls"
+    style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '0.5rem',
+      marginBottom: '1.5rem'
+    }}
+  >
+    <input
+      type="date"
+      className="date-picker"
+      value={date}
+      onChange={(e) => setDate(e.target.value)}
+    />
+    <input
+      type="time"
+      className="time-input"
+      value={time}
+      onChange={(e) => setTime(e.target.value)}
+    />
+  </div>
+
+  {/* Entries Table */}
+  <div className="detail-container entries-table" style={{ overflowX: 'auto' }}>
+    <h2>Entries on {date}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Description</th>
+          <th>Cal</th>
+          <th>Prot</th>
+          <th>Carb</th>
+          <th>Fat</th>
+          <th>Sug</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.length === 0 ? (
+          <tr>
+            <td colSpan="7">No entries for this date</td>
+          </tr>
+        ) : (
+          entries.map((e) => (
+            <tr key={e._id}>
+              <td>{e.time}</td>
+              <td>{e.description}</td>
+              <td>{e.calories}</td>
+              <td>{e.protein}</td>
+              <td>{e.carbs}</td>
+              <td>{e.fat}</td>
+              <td>{e.sugars}</td>
             </tr>
-          </thead>
-          <tbody>
-            {entries.length === 0 ? (
-              <tr>
-                <td colSpan="7">No entries for this date</td>
-              </tr>
-            ) : (
-              entries.map(e => (
-                <tr key={e._id}>
-                  <td>{e.time}</td>
-                  <td>{e.description}</td>
-                  <td>{e.calories}</td>
-                  <td>{e.protein}</td>
-                  <td>{e.carbs}</td>
-                  <td>{e.fat}</td>
-                  <td>{e.sugars}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <p className="totals">
-          Total for day:&nbsp;
-          Calories {totals.Calories.toFixed(2)},&nbsp;
-          Protein {totals.Protein.toFixed(2)},&nbsp;
-          Carbs {totals.Carbs.toFixed(2)},&nbsp;
-          Fat {totals.Fat.toFixed(2)},&nbsp;
-          Sugars {totals.Sugars.toFixed(2)}
-        </p>
-      </div>
+          ))
+        )}
+      </tbody>
+    </table>
+    <p className="totals">
+      Total for day:&nbsp;
+      Calories {totals.Calories.toFixed(2)},&nbsp;
+      Protein {totals.Protein.toFixed(2)},&nbsp;
+      Carbs {totals.Carbs.toFixed(2)},&nbsp;
+      Fat {totals.Fat.toFixed(2)},&nbsp;
+      Sugars {totals.Sugars.toFixed(2)}
+    </p>
+  </div>
 
-      <div className="grid">
-        {suggestions.map(f => (
-          <div
-            key={f.fdcId}
-            className="card"
-            onClick={() => addEntry(f)}
-          >
-            <h3>{f.description}</h3>
-            <p>{f.brandOwner || 'Unknown Brand'}</p>
-          </div>
-        ))}
+  {/* Search Input BELOW table */}
+  <div className="search-bar" style={{ display: 'flex', marginTop: '1.5rem' }}>
+    <input
+      style={{ flex: 1 }}
+      placeholder="Search food…"
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+    />
+    <button
+      onClick={() => {
+        if (input.trim()) setQuery(input.trim());
+      }}
+    >
+      Find
+    </button>
+  </div>
+
+  {/* Suggestions Grid */}
+  <div className="grid">
+    {suggestions.map((f) => (
+      <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
+        <h3>{f.description}</h3>
+        <p>{f.brandOwner || 'Unknown Brand'}</p>
       </div>
-    </div>
+    ))}
+  </div>
+</div>
   );
 }
 

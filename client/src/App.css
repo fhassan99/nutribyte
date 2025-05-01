@@ -349,3 +349,21 @@ th {
   font-weight: bold;
   color: var(--text-secondary);
 }
+/* App.css or component styles */
+.container {
+  padding: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.track-controls input,
+.search-bar input {
+  width: 100%;
+  max-width: 250px;
+}
+
+.search-bar {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
