@@ -314,9 +314,9 @@ th {
   color: var(--text-secondary);
 }
 .link-button {
-  background-color: none;
+  background-color: var(--surface);
   border: none;
-  color: var(--secondary);
+  color: var(--primary);
   text-decoration: underline;
   cursor: pointer;
 }
