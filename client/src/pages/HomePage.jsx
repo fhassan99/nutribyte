@@ -9,18 +9,17 @@ import reactLogo from '../assets/logo.svg';
 
 export default function HomePage() {
   const { user, logout } = useContext(AuthContext);
-  const [showLogin, setShowLogin]       = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
 
-  // On mount: log out and show login modal
+  // Show login modal on first load if not logged in
   useEffect(() => {
-    if (user) {
-      logout(); // Ensure no one is logged in
+    if (!user) {
+      setShowRegister(false);
+      setShowLogin(true);
     }
-    setShowRegister(false);
-    setShowLogin(true); // Show login modal by default
-  }, []); // Only runs once on initial load
+  }, [user]);
 
   return (
     <div className="homepage container">
@@ -55,24 +54,41 @@ export default function HomePage() {
         <button className="home-btn-blue" onClick={() => navigate('/compare')}>
           Compare Foods
         </button>
-        <button
-          className="home-btn-blue"
-          onClick={() => {
-            setShowRegister(false);
-            setShowLogin(true);
-          }}
-        >
-          Login
-        </button>
-        <button
-          className="home-btn-blue"
-          onClick={() => {
-            setShowLogin(false);
-            setShowRegister(true);
-          }}
-        >
-          Register
-        </button>
+
+        {user ? (
+          <>
+            <button className="home-btn-blue" onClick={() => navigate('/track')}>
+              Track My Calories
+            </button>
+            <button className="home-btn-blue" onClick={logout}>
+              Logout
+            </button>
+            <p className="text-secondary">
+              Logged in as <strong>{user.email}</strong>
+            </p>
+          </>
+        ) : (
+          <>
+            <button
+              className="home-btn-blue"
+              onClick={() => {
+                setShowRegister(false);
+                setShowLogin(true);
+              }}
+            >
+              Login
+            </button>
+            <button
+              className="home-btn-blue"
+              onClick={() => {
+                setShowLogin(false);
+                setShowRegister(true);
+              }}
+            >
+              Register
+            </button>
+          </>
+        )}
       </div>
 
       {showLogin && (
@@ -97,6 +113,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
