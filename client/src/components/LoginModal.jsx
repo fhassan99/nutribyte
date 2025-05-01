@@ -19,7 +19,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-      <h2 id="register-heading">Register</h2>
+      <h1 id="login-heading">Log in</h1>
         <input
           type="email"
           placeholder="Email"
