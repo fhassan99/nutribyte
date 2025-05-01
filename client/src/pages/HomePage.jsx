@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaAppleAlt, FaCarrot, FaDrumstickBite, FaLink } from 'react-icons/fa';
+import {
+  FaAppleAlt,
+  FaCarrot,
+  FaDrumstickBite,
+  FaLink,
+  FaSignOutAlt,
+} from 'react-icons/fa';
 import LoginModal from '../components/LoginModal';
 import RegistrationModal from '../components/RegistrationModal';
 import { AuthContext } from '../context/AuthContext';
@@ -26,14 +32,14 @@ export default function HomePage() {
       {user && (
         <div style={{ position: 'absolute', top: 20, right: 20, textAlign: 'right' }}>
           <p className="text-secondary">
-            Logged in as <strong>
-              {user.firstName && user.lastName
-                ? `${user.firstName} ${user.lastName}`
-                : user.email}
-            </strong>
+            Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
           </p>
-          <button className="home-btn-blue" onClick={logout}>
-            Logout
+          <button
+            className="home-btn-blue"
+            onClick={logout}
+            style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+          >
+            <FaSignOutAlt /> Logout
           </button>
         </div>
       )}
@@ -70,11 +76,32 @@ export default function HomePage() {
         <button className="home-btn-blue" onClick={() => navigate('/compare')}>
           Compare Foods
         </button>
-        {user && (
-          <button className="home-btn-blue" onClick={() => navigate('/track')}>
-            Track My Calories
-          </button>
-        )}
+        <button
+          className="home-btn-blue"
+          onClick={() => user && navigate('/track')}
+          disabled={!user}
+          style={{
+            opacity: user ? 1 : 0.5,
+            cursor: user ? 'pointer' : 'not-allowed',
+            position: 'relative',
+          }}
+        >
+          Track My Calories
+          {!user && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '110%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '0.75rem',
+                color: '#999',
+              }}
+            >
+              Log in to access
+            </span>
+          )}
+        </button>
       </div>
 
       {showLogin && (
@@ -99,6 +126,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
