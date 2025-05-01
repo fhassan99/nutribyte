@@ -20,6 +20,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
       <h2 id="login-heading">Log in to track your calories</h2>
+      <h2 id="login-spacing"></h2>
         <input
           type="email"
           placeholder="Email"
