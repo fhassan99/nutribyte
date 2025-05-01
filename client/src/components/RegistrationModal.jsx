@@ -49,9 +49,6 @@ export default function RegistrationModal({ onClose, onSwitchToLogin }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()} role="dialog" aria-labelledby="register-heading">
-        <button className="modal-close" onClick={onClose} aria-label="Close registration form">
-          ×
-        </button>
         <h2 id="register-heading">Register</h2>
         <form onSubmit={handleRegister}>
           <input
