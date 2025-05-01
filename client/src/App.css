@@ -306,6 +306,7 @@ th {
 }
 .modal-content button:hover {
   background: var(--secondary);
+  margin-bottom: 3rem;
 }
 .modal-footer-text {
   text-align: center;
@@ -313,7 +314,7 @@ th {
   color: var(--text-secondary);
 }
 .link-button {
-  background: none;
+  background-color: none;
   border: none;
   color: var(--secondary);
   text-decoration: underline;
