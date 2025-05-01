@@ -13,7 +13,6 @@ export default function HomePage() {
   const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
 
-  // Show login modal on first load if not logged in
   useEffect(() => {
     if (!user) {
       setShowRegister(false);
@@ -23,11 +22,15 @@ export default function HomePage() {
 
   return (
     <div className="homepage container">
-      {/* Top right account info */}
+      {/* Top-right user info */}
       {user && (
         <div style={{ position: 'absolute', top: 20, right: 20, textAlign: 'right' }}>
           <p className="text-secondary">
-            Logged in as <strong>{user.firstName} {user.lastName}</strong>
+            Logged in as <strong>
+              {user.firstName && user.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : user.email}
+            </strong>
           </p>
           <button className="home-btn-blue" onClick={logout}>
             Logout
@@ -46,6 +49,7 @@ export default function HomePage() {
       </div>
 
       <p>Your personal nutrition explorer powered by USDA data.</p>
+      <p>Track your calories daily.</p>
       <p>
         Data sourced from{' '}
         <a
@@ -95,6 +99,7 @@ export default function HomePage() {
     </div>
   );
 }
+
 
 
 
