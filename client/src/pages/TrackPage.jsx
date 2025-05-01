@@ -11,77 +11,68 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // redirect if not logged in
+  // if not logged in, send home
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
 
-  // state
-  const [date, setDate]               = useState(() => new Date().toISOString().slice(0,10));
-  const [entries, setEntries]         = useState([]);
-  const [search, setSearch]           = useState('');
+  // --- FORM STATE ---
+  const [date,  setDate]  = useState(() => new Date().toISOString().slice(0,10));
+  const [time,  setTime]  = useState(() => new Date().toISOString().slice(11,19));
+  const [input, setInput] = useState('');    // what the user types
+  const [query, setQuery] = useState('');    // only triggers fetch when you click Find
   const [suggestions, setSuggestions] = useState([]);
 
-  // load existing entries
+  // load existing entries for chart & table
+  const [entries, setEntries] = useState([]);
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(setEntries)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(data => setEntries(data))
       .catch(() => setEntries([]));
   }, [date, token]);
 
   useEffect(() => {
     if (token) loadEntries();
-  }, [loadEntries, token]);
+  }, [token, loadEntries]);
 
-  // daily totals for chart
+  // build totals & chart data
   const totals = entries.reduce((acc, e) => {
-    acc.Calories += e.calories  || 0;
-    acc.Protein  += e.protein   || 0;
-    acc.Carbs    += e.carbs     || 0;
-    acc.Fat      += e.fat       || 0;
-    acc.Sugars   += e.sugars    || 0;
+    acc.Calories += e.calories || 0;
+    acc.Protein  += e.protein  || 0;
+    acc.Carbs    += e.carbs    || 0;
+    acc.Fat      += e.fat      || 0;
+    acc.Sugars   += e.sugars   || 0;
     return acc;
-  }, { Calories:0, Protein:0, Carbs:0, Fat:0, Sugars:0 });
+  }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
 
-  const chartData = Object.entries(totals).map(([name, value]) => ({
+  const chartData = Object.entries(totals).map(([name,value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
 
-  // fetch suggestions when “Find” clicked
-  const fetchSuggestions = () => {
-    const q = search.trim();
-    if (!q) {
+  // fetch suggestions only when “query” changes (i.e. click Find)
+  useEffect(() => {
+    if (!query) {
       setSuggestions([]);
       return;
     }
-    fetch(`/api/foods?search=${encodeURIComponent(q)}&page=1&limit=10`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(result => {
-        // our API now returns { foods, count }
-        const items = Array.isArray(result) ? result : result.foods;
-        setSuggestions(items || []);
-      })
+    fetch(`/api/foods?search=${encodeURIComponent(query)}&page=1&limit=10`)
+      .then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(json => setSuggestions(json.foods))
       .catch(() => setSuggestions([]));
-  };
+  }, [query]);
 
-  // add one entry using current time & food.description
+  // add one entry by clicking a suggestion
   const addEntry = (food) => {
-    const now = new Date();
-    const time = now.toTimeString().split(' ')[0]; // "HH:MM:SS"
-
-    // re-fetch full nutrient details
     fetch(`/api/foods/${food.fdcId}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
-        const getAmt = name =>
-          full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
-
+        const getAmt = n => full.nutrients.find(x => x.nutrientName===n)?.amount || 0;
         const entry = {
           date,
           time,
@@ -92,12 +83,11 @@ export default function TrackPage() {
           fat:      getAmt('Total lipid (fat)'),
           sugars:   getAmt('Sugars, total')
         };
-
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
-            'Content-Type':  'application/json',
-            Authorization:   `Bearer ${token}`
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
           },
           body: JSON.stringify(entry)
         });
@@ -105,11 +95,14 @@ export default function TrackPage() {
       .then(r => {
         if (!r.ok) throw new Error();
         loadEntries();
-        setSuggestions([]);    // clear list
-        setSearch('');         // clear search
+        setInput('');
+        setQuery('');
+        setSuggestions([]);
       })
-      .catch(() => alert('Could not add entry. Please make sure you’re logged in.'));
+      .catch(() => alert('Failed to add entry. Please try again.'));
   };
+
+  if (!user) return <p>Please log in to track calories.</p>;
 
   return (
     <div className="container">
@@ -118,12 +111,9 @@ export default function TrackPage() {
       </button>
 
       <h1>Track My Calories</h1>
-
-      {user && (
-        <p style={{ color: 'var(--secondary)' }}>
-          Logged in as <strong>{user.email}</strong>
-        </p>
-      )}
+      <p style={{ color: 'var(--secondary)' }}>
+        Logged in as <strong>{user.email}</strong>
+      </p>
 
       {/* Chart */}
       <div style={{ width: '100%', height: 300, marginBottom: '2rem' }}>
@@ -158,19 +148,17 @@ export default function TrackPage() {
               <tr>
                 <td colSpan="7">No entries for this date</td>
               </tr>
-            ) : (
-              entries.map(e => (
-                <tr key={e._id}>
-                  <td>{new Date(e.createdAt).toLocaleTimeString()}</td>
-                  <td>{e.description}</td>
-                  <td>{e.calories}</td>
-                  <td>{e.protein}</td>
-                  <td>{e.carbs}</td>
-                  <td>{e.fat}</td>
-                  <td>{e.sugars}</td>
-                </tr>
-              ))
-            )}
+            ) : entries.map(e => (
+              <tr key={e._id}>
+                <td>{new Date(e.createdAt).toLocaleTimeString()}</td>
+                <td>{e.description}</td>
+                <td>{e.calories}</td>
+                <td>{e.protein}</td>
+                <td>{e.carbs}</td>
+                <td>{e.fat}</td>
+                <td>{e.sugars}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
         <p className="totals">
@@ -183,7 +171,7 @@ export default function TrackPage() {
         </p>
       </div>
 
-      {/* Date + Search Bar */}
+      {/* Date, Time & Search Form */}
       <div className="track-controls">
         <input
           type="date"
@@ -191,21 +179,36 @@ export default function TrackPage() {
           value={date}
           onChange={e => setDate(e.target.value)}
         />
-
+        <input
+          type="time"
+          className="time-input"
+          value={time}
+          onChange={e => setTime(e.target.value)}
+        />
         <div className="search-bar" style={{ flex: 1 }}>
           <input
-            placeholder="Search food to add…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            placeholder="Search food…"
+            value={input}
+            onChange={e => setInput(e.target.value)}
           />
-          <button onClick={fetchSuggestions}>Find</button>
+          <button
+            onClick={() => {
+              if (input.trim()) setQuery(input.trim());
+            }}
+          >
+            Find
+          </button>
         </div>
       </div>
 
-      {/* Suggestions Grid */}
+      {/* Suggestions */}
       <div className="grid">
         {suggestions.map(f => (
-          <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
+          <div
+            key={f.fdcId}
+            className="card"
+            onClick={() => addEntry(f)}
+          >
             <h3>{f.description}</h3>
             <p>{f.brandOwner || 'Unknown Brand'}</p>
           </div>
@@ -214,6 +217,7 @@ export default function TrackPage() {
     </div>
   );
 }
+
 
 
 
