@@ -19,7 +19,6 @@ export default function TrackPage() {
   const [date,  setDate]  = useState(() => new Date().toISOString().slice(0, 10));
   const [time,  setTime]  = useState(() => new Date().toISOString().slice(11, 16));
   const [input, setInput] = useState('');
-  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
   const [entries, setEntries] = useState([]);
@@ -51,15 +50,16 @@ export default function TrackPage() {
   }));
 
   useEffect(() => {
-    if (!query) {
+    if (!input.trim()) {
       setSuggestions([]);
       return;
     }
-    fetch(`/api/foods?search=${encodeURIComponent(query)}&page=1&limit=10`)
+
+    fetch(`/api/foods?search=${encodeURIComponent(input.trim())}&page=1&limit=1000`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(json => setSuggestions(json.foods))
       .catch(() => setSuggestions([]));
-  }, [query]);
+  }, [input]);
 
   const addEntry = food => {
     fetch(`/api/foods/${food.fdcId}`)
@@ -91,7 +91,6 @@ export default function TrackPage() {
         if (!r.ok) throw new Error();
         loadEntries();
         setInput('');
-        setQuery('');
         setSuggestions([]);
       })
       .catch(() => alert('Failed to add entry. Please try again.'));
@@ -101,126 +100,124 @@ export default function TrackPage() {
 
   return (
     <div className="container" style={{ maxWidth: "100%", overflowX: "hidden" }}>
-  <button className="home-btn-blue" onClick={() => navigate(-1)}>
-    ← Back
-  </button>
+      <button className="home-btn-blue" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
 
-  <h1>Track My Calories</h1>
-  <p style={{ color: 'var(--secondary)' }}>
-    Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
-  </p>
+      <h1>Track My Calories</h1>
+      <p style={{ color: 'var(--secondary)' }}>
+        Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
+      </p>
 
-  {/* Chart */}
-  <div style={{ width: '100%', height: 300, marginBottom: '1rem' }}>
-    <ResponsiveContainer>
-      <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" stroke="var(--text-secondary)" />
-        <YAxis stroke="var(--text-secondary)" />
-        <Tooltip />
-        <Bar dataKey="value" fill="var(--primary)" />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-
-  {/* Date + Time Pickers */}
-  <div
-    className="track-controls"
-    style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '0.5rem',
-      marginBottom: '1.5rem'
-    }}
-  >
-    <input
-      type="date"
-      className="date-picker"
-      value={date}
-      onChange={(e) => setDate(e.target.value)}
-    />
-    <input
-      type="time"
-      className="time-input"
-      value={time}
-      onChange={(e) => setTime(e.target.value)}
-    />
-  </div>
-
-  {/* Entries Table */}
-  <div className="detail-container entries-table" style={{ overflowX: 'auto' }}>
-    <h2>Entries on {date}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Description</th>
-          <th>Cal</th>
-          <th>Prot</th>
-          <th>Carb</th>
-          <th>Fat</th>
-          <th>Sug</th>
-        </tr>
-      </thead>
-      <tbody>
-        {entries.length === 0 ? (
-          <tr>
-            <td colSpan="7">No entries for this date</td>
-          </tr>
-        ) : (
-          entries.map((e) => (
-            <tr key={e._id}>
-              <td>{e.time}</td>
-              <td>{e.description}</td>
-              <td>{e.calories}</td>
-              <td>{e.protein}</td>
-              <td>{e.carbs}</td>
-              <td>{e.fat}</td>
-              <td>{e.sugars}</td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-    <p className="totals">
-      Total for day:&nbsp;
-      Calories {totals.Calories.toFixed(2)},&nbsp;
-      Protein {totals.Protein.toFixed(2)},&nbsp;
-      Carbs {totals.Carbs.toFixed(2)},&nbsp;
-      Fat {totals.Fat.toFixed(2)},&nbsp;
-      Sugars {totals.Sugars.toFixed(2)}
-    </p>
-  </div>
-
-  {/* Search Input BELOW table */}
-  <div className="search-bar" style={{ display: 'flex', marginTop: '1.5rem' }}>
-    <input
-      style={{ flex: 1 }}
-      placeholder="Search food…"
-      value={input}
-      onChange={(e) => setInput(e.target.value)}
-    />
-    <button
-      onClick={() => {
-        if (input.trim()) setQuery(input.trim());
-      }}
-    >
-      Find
-    </button>
-  </div>
-
-  {/* Suggestions Grid */}
-  <div className="grid">
-    {suggestions.map((f) => (
-      <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
-        <h3>{f.description}</h3>
-        <p>{f.brandOwner || 'Unknown Brand'}</p>
+      {/* Chart */}
+      <div style={{ width: '100%', height: 300, marginBottom: '1rem' }}>
+        <ResponsiveContainer>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" stroke="var(--text-secondary)" />
+            <YAxis stroke="var(--text-secondary)" />
+            <Tooltip />
+            <Bar dataKey="value" fill="var(--primary)" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
-    ))}
-  </div>
-</div>
+
+      {/* Date & Time Pickers */}
+      <div
+        className="track-controls"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
+          marginBottom: '1.5rem'
+        }}
+      >
+        <input
+          type="date"
+          className="date-picker"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <input
+          type="time"
+          className="time-input"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+        />
+      </div>
+
+      {/* Entries Table */}
+      <div className="detail-container entries-table" style={{ overflowX: 'auto' }}>
+        <h2>Entries on {date}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Description</th>
+              <th>Cal</th>
+              <th>Prot</th>
+              <th>Carb</th>
+              <th>Fat</th>
+              <th>Sug</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.length === 0 ? (
+              <tr>
+                <td colSpan="7">No entries for this date</td>
+              </tr>
+            ) : (
+              entries.map((e) => (
+                <tr key={e._id}>
+                  <td>{e.time}</td>
+                  <td>{e.description}</td>
+                  <td>{e.calories}</td>
+                  <td>{e.protein}</td>
+                  <td>{e.carbs}</td>
+                  <td>{e.fat}</td>
+                  <td>{e.sugars}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {/* Bulleted Totals */}
+        <div className="totals" style={{ marginTop: '1rem' }}>
+          <h3>Daily Total Nutrients:</h3>
+          <ul style={{ listStyleType: 'disc', paddingLeft: '1.5rem' }}>
+            <li>Calories: {totals.Calories.toFixed(2)}</li>
+            <li>Protein: {totals.Protein.toFixed(2)} g</li>
+            <li>Carbs: {totals.Carbs.toFixed(2)} g</li>
+            <li>Fat: {totals.Fat.toFixed(2)} g</li>
+            <li>Sugars: {totals.Sugars.toFixed(2)} g</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Search input below table */}
+      <div className="search-bar" style={{ display: 'flex', marginTop: '1.5rem' }}>
+        <input
+          style={{ flex: 1 }}
+          placeholder="Search food…"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+      </div>
+
+      {/* Suggestions Grid */}
+      <div className="grid">
+        {suggestions.map((f) => (
+          <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
+            <h3>{f.description}</h3>
+            <p>{f.brandOwner || 'Unknown Brand'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
+
 
 
 
