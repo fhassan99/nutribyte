@@ -98,7 +98,6 @@ export default function HomePage() {
                 color: '#999',
               }}
             >
-              Log in to access
             </span>
           )}
         </button>
