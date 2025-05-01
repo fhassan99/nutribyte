@@ -8,12 +8,14 @@ export default function ComparePage() {
   const [sugs2, setSugs2]         = useState([]);
   const [sel1, setSel1]           = useState(null);
   const [sel2, setSel2]           = useState(null);
+  const [locked1, setLocked1]     = useState(false);
+  const [locked2, setLocked2]     = useState(false);
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
   // Suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable) {
+    if (!search1 || showTable || locked1) {
       setSugs1([]);
       return;
     }
@@ -24,11 +26,11 @@ export default function ComparePage() {
       })
       .then(data => setSugs1(data.foods))
       .catch(() => setSugs1([]));
-  }, [search1, showTable]);
+  }, [search1, showTable, locked1]);
 
   // Suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable) {
+    if (!search2 || showTable || locked2) {
       setSugs2([]);
       return;
     }
@@ -39,7 +41,7 @@ export default function ComparePage() {
       })
       .then(data => setSugs2(data.foods))
       .catch(() => setSugs2([]));
-  }, [search2, showTable]);
+  }, [search2, showTable, locked2]);
 
   // Compare action
   const compare = async () => {
@@ -73,6 +75,8 @@ export default function ComparePage() {
     setSearch2('');
     setSel1(null);
     setSel2(null);
+    setLocked1(false);
+    setLocked2(false);
     setShowTable(false);
     setNutrients([]);
   };
@@ -92,10 +96,11 @@ export default function ComparePage() {
             className="compare-input"
             placeholder="Type to search…"
             value={search1}
-            disabled={showTable}
+            disabled={locked1 || showTable}
             onChange={e => {
               setSearch1(e.target.value);
               setSel1(null);
+              setLocked1(false);
             }}
           />
           <div className="suggestions">
@@ -107,6 +112,7 @@ export default function ComparePage() {
                   setSel1(f);
                   setSearch1(f.description);
                   setSugs1([]);
+                  setLocked1(true);
                 }}
               >
                 <strong>{f.description}</strong>
@@ -123,10 +129,11 @@ export default function ComparePage() {
             className="compare-input"
             placeholder="Type to search…"
             value={search2}
-            disabled={showTable}
+            disabled={locked2 || showTable}
             onChange={e => {
               setSearch2(e.target.value);
               setSel2(null);
+              setLocked2(false);
             }}
           />
           <div className="suggestions">
@@ -138,6 +145,7 @@ export default function ComparePage() {
                   setSel2(f);
                   setSearch2(f.description);
                   setSugs2([]);
+                  setLocked2(true);
                 }}
               >
                 <strong>{f.description}</strong>
@@ -193,6 +201,7 @@ export default function ComparePage() {
     </div>
   );
 }
+
 
 
 
