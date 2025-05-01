@@ -3,16 +3,27 @@ import React, { createContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // user will be { token, email } when logged in
   const [user, setUser] = useState(null);
 
-  // on mount, restore from localStorage
+  // Restore user from sessionStorage on page load
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const email = localStorage.getItem('email');
+    const token = sessionStorage.getItem('token');
+    const email = sessionStorage.getItem('email');
     if (token && email) {
       setUser({ token, email });
     }
+
+    // Listen for logout from other tabs
+    const handleStorage = (event) => {
+      if (event.key === 'logout') {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('email');
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const login = async (email, password) => {
@@ -21,11 +32,13 @@ export function AuthProvider({ children }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+
     if (!res.ok) throw new Error(await res.text());
     const { token } = await res.json();
-    // persist
-    localStorage.setItem('token', token);
-    localStorage.setItem('email', email);
+
+    // Store in sessionStorage
+    sessionStorage.setItem('token', token);
+    sessionStorage.setItem('email', email);
     setUser({ token, email });
   };
 
@@ -40,9 +53,12 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('email');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('email');
     setUser(null);
+
+    // Broadcast logout to other tabs
+    localStorage.setItem('logout', Date.now());
   };
 
   return (
@@ -51,6 +67,7 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
 
 
 
