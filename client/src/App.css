@@ -278,9 +278,6 @@ th {
 }
 
 /* — MODAL STYLING — */
-.modal-close:hover {
-  color: var(--error);
-}
 .modal-content input {
   width: 100%;
   padding: 0.75rem;
