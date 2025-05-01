@@ -11,21 +11,25 @@ export default function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // if not logged in, send home
+  // redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
   const token = user?.token;
 
-  // --- FORM STATE ---
-  const [date,  setDate]  = useState(() => new Date().toISOString().slice(0,10));
-  const [time,  setTime]  = useState(() => new Date().toISOString().slice(11,19));
-  const [input, setInput] = useState('');    // what the user types
-  const [query, setQuery] = useState('');    // only triggers fetch when you click Find
+  // ── form state ─────────────────────────────────────────────────────────────
+  const [date,  setDate]  = useState(
+    () => new Date().toISOString().slice(0, 10)
+  );
+  const [time,  setTime]  = useState(
+    () => new Date().toISOString().slice(11, 16)  // HH:MM
+  );
+  const [input, setInput] = useState('');  // what user types
+  const [query, setQuery] = useState('');  // only changes on Find click
   const [suggestions, setSuggestions] = useState([]);
 
-  // load existing entries for chart & table
+  // ── existing entries & chart ──────────────────────────────────────────────
   const [entries, setEntries] = useState([]);
   const loadEntries = useCallback(() => {
     fetch(`/api/entries?date=${date}`, {
@@ -40,7 +44,7 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [token, loadEntries]);
 
-  // build totals & chart data
+  // compute totals & chart data
   const totals = entries.reduce((acc, e) => {
     acc.Calories += e.calories || 0;
     acc.Protein  += e.protein  || 0;
@@ -50,12 +54,12 @@ export default function TrackPage() {
     return acc;
   }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
 
-  const chartData = Object.entries(totals).map(([name,value]) => ({
+  const chartData = Object.entries(totals).map(([name, value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
 
-  // fetch suggestions only when “query” changes (i.e. click Find)
+  // ── fetch suggestions only on “Find” ───────────────────────────────────────
   useEffect(() => {
     if (!query) {
       setSuggestions([]);
@@ -67,12 +71,14 @@ export default function TrackPage() {
       .catch(() => setSuggestions([]));
   }, [query]);
 
-  // add one entry by clicking a suggestion
-  const addEntry = (food) => {
+  // ── add one calorie entry ─────────────────────────────────────────────────
+  const addEntry = food => {
     fetch(`/api/foods/${food.fdcId}`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
-        const getAmt = n => full.nutrients.find(x => x.nutrientName===n)?.amount || 0;
+        const getAmt = name =>
+          full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
+
         const entry = {
           date,
           time,
@@ -83,6 +89,7 @@ export default function TrackPage() {
           fat:      getAmt('Total lipid (fat)'),
           sugars:   getAmt('Sugars, total')
         };
+
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
@@ -148,17 +155,19 @@ export default function TrackPage() {
               <tr>
                 <td colSpan="7">No entries for this date</td>
               </tr>
-            ) : entries.map(e => (
-              <tr key={e._id}>
-                <td>{new Date(e.createdAt).toLocaleTimeString()}</td>
-                <td>{e.description}</td>
-                <td>{e.calories}</td>
-                <td>{e.protein}</td>
-                <td>{e.carbs}</td>
-                <td>{e.fat}</td>
-                <td>{e.sugars}</td>
-              </tr>
-            ))}
+            ) : (
+              entries.map(e => (
+                <tr key={e._id}>
+                  <td>{e.time}</td>
+                  <td>{e.description}</td>
+                  <td>{e.calories}</td>
+                  <td>{e.protein}</td>
+                  <td>{e.carbs}</td>
+                  <td>{e.fat}</td>
+                  <td>{e.sugars}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
         <p className="totals">
@@ -217,6 +226,7 @@ export default function TrackPage() {
     </div>
   );
 }
+
 
 
 
