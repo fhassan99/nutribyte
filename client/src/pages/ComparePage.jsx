@@ -11,22 +11,31 @@ export default function ComparePage() {
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
+  // Suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable) return setSugs1([]);
+    if (!search1 || showTable) {
+      setSugs1([]);
+      return;
+    }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(j => setSugs1(j))
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => setSugs1(data.foods))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
+  // Suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable) return setSugs2([]);
+    if (!search2 || showTable) {
+      setSugs2([]);
+      return;
+    }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(j => setSugs2(j))
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => setSugs2(data.foods))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
+  // Compare action
   const compare = async () => {
     if (!sel1 || !sel2) return;
     const [f1, f2] = await Promise.all([
@@ -54,8 +63,10 @@ export default function ComparePage() {
   };
 
   const reset = () => {
-    setSearch1(''); setSearch2('');
-    setSel1(null);   setSel2(null);
+    setSearch1('');
+    setSearch2('');
+    setSel1(null);
+    setSel2(null);
     setShowTable(false);
     setNutrients([]);
   };
@@ -81,8 +92,6 @@ export default function ComparePage() {
               setSel1(null);
             }}
           />
-
-          {/* only render dropdown if there's suggestions AND no selection yet */}
           {sugs1.length > 0 && !sel1 && (
             <div className="suggestions">
               {sugs1.map(f => (
@@ -92,7 +101,7 @@ export default function ComparePage() {
                   onClick={() => {
                     setSel1(f);
                     setSearch1(f.description);
-                    setSugs1([]);  // clear just in case
+                    setSugs1([]);
                   }}
                 >
                   <strong>{f.description}</strong>
@@ -116,7 +125,6 @@ export default function ComparePage() {
               setSel2(null);
             }}
           />
-
           {sugs2.length > 0 && !sel2 && (
             <div className="suggestions">
               {sugs2.map(f => (
@@ -183,6 +191,7 @@ export default function ComparePage() {
     </div>
   );
 }
+
 
 
 
