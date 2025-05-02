@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function SearchPage() {
   const [input, setInput] = useState('');
@@ -10,20 +10,16 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [foodOfDay, setFoodOfDay] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Read query param on load
+  // Populate input from URL ?search= param on load
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const q = params.get('search');
-    if (q) {
-      setInput(q);
-      setPage(1);
-    }
-  }, [location.search]);
+    const param = searchParams.get('search') || '';
+    setInput(param);
+  }, [searchParams]);
 
-  // Fetch Food of the Day (unrelated to search)
+  // Fetch Food of the Day on load
   useEffect(() => {
     fetch('/api/foods?search=&page=1&limit=50')
       .then(res => res.ok ? res.json() : Promise.reject())
@@ -34,7 +30,7 @@ export default function SearchPage() {
           setFoodOfDay(randomFood);
         }
       })
-      .catch(err => console.error('Food of the Day fetch failed:', err));
+      .catch(err => console.error('❌ Food of the Day fetch failed:', err));
   }, []);
 
   // Fetch search results when input or page changes
@@ -48,16 +44,17 @@ export default function SearchPage() {
 
     setLoading(true);
     setError('');
+    setSearchParams({ search: query });
 
     fetch(`/api/foods?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then(data => {
-        console.log('🧪 Search response:', data);
+        console.log('✅ API response:', data);
         setFoods(data.foods || []);
         setCount(data.count || 0);
       })
       .catch(err => {
-        console.error('Search error:', err);
+        console.error('❌ Search error:', err);
         setError('Failed to load results');
       })
       .finally(() => setLoading(false));
@@ -91,15 +88,13 @@ export default function SearchPage() {
           placeholder="Start typing to search…"
           value={input}
           onChange={e => {
-            const val = e.target.value;
-            setInput(val);
+            setInput(e.target.value);
             setPage(1);
-            navigate(`/search?search=${encodeURIComponent(val)}`);
           }}
         />
       </div>
 
-      {/* Feedback */}
+      {/* Feedback messages */}
       {loading && <p>Loading…</p>}
       {error && <p className="error">{error}</p>}
       {!loading && !error && input.trim() && foods.length === 0 && (
@@ -131,6 +126,7 @@ export default function SearchPage() {
     </div>
   );
 }
+
 
 
 
