@@ -9,7 +9,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from 'recharts';
 import '../index.css';
 
@@ -59,10 +60,21 @@ export default function TrackPage() {
     },
     { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 }
   );
-  const chartData = Object.entries(totals).map(([name, value]) => ({
+
+  // Prepare chart data: exclude Calories
+  const rawData = Object.entries(totals).map(([name, value]) => ({
     name,
     value: Number(value.toFixed(2))
   }));
+  const chartData = rawData.filter(d => d.name !== 'Calories');
+
+  // Define a color map for each nutrient
+  const colorMap = {
+    Protein: 'var(--secondary)',
+    Carbs:   '#fff176',   // a warm yellow
+    Fat:     '#cf6679',   // error/red
+    Sugars:  '#80deea'    // light cyan
+  };
 
   // Live suggestions as user types
   useEffect(() => {
@@ -81,14 +93,11 @@ export default function TrackPage() {
     fetch(`/api/foods/${food.fdcId}`)
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
-        // format HH:MM
         const entryTime = new Date().toLocaleTimeString('en-GB', {
           hour12: false,
           hour: '2-digit',
           minute: '2-digit'
         });
-
-        // helper: try exact names then fallback to partial match ("Sugar")
         const getAmt = names => {
           const list = Array.isArray(names) ? names : [names];
           let nut = full.nutrients.find(n => list.includes(n.nutrientName));
@@ -100,7 +109,6 @@ export default function TrackPage() {
           }
           return nut ? nut.amount : 0;
         };
-
         const payload = {
           fdcId: full.fdcId,
           description: full.description,
@@ -112,7 +120,6 @@ export default function TrackPage() {
           fat:      getAmt('Total lipid (fat)'),
           sugars:   getAmt(['Sugars, total', 'Sugars, total including NLEA'])
         };
-
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
@@ -165,7 +172,7 @@ export default function TrackPage() {
         ))}
       </div>
 
-      {/* Bar chart */}
+      {/* Bar chart (without Calories) */}
       <div className="chart-container">
         <h2>Daily Macro Breakdown</h2>
         <ResponsiveContainer width="100%" height={240}>
@@ -174,7 +181,14 @@ export default function TrackPage() {
             <XAxis dataKey="name" stroke="var(--text-secondary)" />
             <YAxis stroke="var(--text-secondary)" />
             <Tooltip />
-            <Bar dataKey="value" fill="var(--primary)" />
+            <Bar dataKey="value">
+              {chartData.map((entry, idx) => (
+                <Cell
+                  key={`cell-${idx}`}
+                  fill={colorMap[entry.name] || 'var(--primary)'}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -190,7 +204,7 @@ export default function TrackPage() {
       </div>
 
       {/* Entries table */}
-
+      <h2>Entries on {new Date(date).toLocaleDateString()}</h2>
       <table className="entries-table">
         <thead>
           <tr>
@@ -272,34 +286,3 @@ export default function TrackPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
