@@ -1,27 +1,25 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
 
 export default function LoginModal({ onClose, onSwitchToRegister }) {
-  const { login } = useContext(AuthContext);
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]       = useState(null);
+  const { login } = useContext(AuthContext)
+  const [email, setEmail]       = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError]       = useState(null)
 
   const handleLogin = async () => {
     try {
-      await login(email, password);
-      onClose();
+      await login(email, password)
+      onClose()
     } catch (err) {
-      setError('Login failed: ' + err.message);
+      setError('Login failed: ' + err.message)
     }
-  };
+  }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-      <h2 id="login-heading" style={{ marginBottom: '2rem' }}>
-      Log in to track your calories
-      </h2>
+        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
         <input
           type="email"
           placeholder="Email"
@@ -34,11 +32,8 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
           value={password}
           onChange={e => setPassword(e.target.value)}
         />
-
         {error && <p className="error">{error}</p>}
-
         <button onClick={handleLogin}>Log In</button>
-
         <p className="modal-footer-text">
           Don’t have an account?{' '}
           <button className="link-button" onClick={onSwitchToRegister}>
@@ -47,8 +42,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
         </p>
       </div>
     </div>
-  );
+  )
 }
+
 
 
 

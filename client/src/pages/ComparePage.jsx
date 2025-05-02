@@ -18,7 +18,7 @@ export default function ComparePage() {
     }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(data => setSugs1(data.foods))          // <-- pull out `.foods`
+      .then(data => setSugs1(data.foods))
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
@@ -30,7 +30,7 @@ export default function ComparePage() {
     }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(data => setSugs2(data.foods))          // <-- pull out `.foods`
+      .then(data => setSugs2(data.foods))
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
@@ -41,12 +41,10 @@ export default function ComparePage() {
       fetch(`/api/foods/${sel1.fdcId}`).then(r => r.json()),
       fetch(`/api/foods/${sel2.fdcId}`).then(r => r.json())
     ]);
-
     const allNames = Array.from(new Set([
       ...f1.nutrients.map(n => n.nutrientName),
       ...f2.nutrients.map(n => n.nutrientName)
     ]));
-
     setNutrients(allNames.map(name => {
       const n1 = f1.nutrients.find(n => n.nutrientName === name) || {};
       const n2 = f2.nutrients.find(n => n.nutrientName === name) || {};
@@ -57,13 +55,14 @@ export default function ComparePage() {
         unit: n1.nutrientUnit || n2.nutrientUnit || ''
       };
     }));
-
     setShowTable(true);
   };
 
   const reset = () => {
-    setSearch1(''); setSearch2('');
-    setSel1(null);   setSel2(null);
+    setSearch1('');
+    setSearch2('');
+    setSel1(null);
+    setSel2(null);
     setShowTable(false);
     setNutrients([]);
   };
@@ -89,25 +88,22 @@ export default function ComparePage() {
               setSel1(null);
             }}
           />
-          {/* only render if there are suggestions */}
-          {sugs1.length > 0 && (
-            <div className="suggestions">
-              {sugs1.map(f => (
-                <div
-                  key={f.fdcId}
-                  className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
-                  onClick={() => {
-                    setSel1(f);
-                    setSearch1(f.description);
-                    setSugs1([]);  // clear and hide
-                  }}
-                >
-                  <strong>{f.description}</strong>
-                  <small>{f.brandOwner}</small>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions">
+            {sugs1.map(f => (
+              <div
+                key={f.fdcId}
+                className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
+                onClick={() => {
+                  setSel1(f);
+                  setSearch1(f.description);
+                  setSugs1([]);    // hide immediately
+                }}
+              >
+                <strong>{f.description}</strong>
+                <small>{f.brandOwner}</small>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Second food */}
@@ -123,27 +119,26 @@ export default function ComparePage() {
               setSel2(null);
             }}
           />
-          {sugs2.length > 0 && (
-            <div className="suggestions">
-              {sugs2.map(f => (
-                <div
-                  key={f.fdcId}
-                  className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
-                  onClick={() => {
-                    setSel2(f);
-                    setSearch2(f.description);
-                    setSugs2([]);
-                  }}
-                >
-                  <strong>{f.description}</strong>
-                  <small>{f.brandOwner}</small>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions">
+            {sugs2.map(f => (
+              <div
+                key={f.fdcId}
+                className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
+                onClick={() => {
+                  setSel2(f);
+                  setSearch2(f.description);
+                  setSugs2([]);    // hide immediately
+                }}
+              >
+                <strong>{f.description}</strong>
+                <small>{f.brandOwner}</small>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Actions */}
       <div className="compare-actions">
         <button
           className="compare-btn"
@@ -159,6 +154,7 @@ export default function ComparePage() {
         )}
       </div>
 
+      {/* Comparison table */}
       {showTable && (
         <div className="compare-table-container">
           <button className="compare-close" onClick={() => setShowTable(false)}>
@@ -187,18 +183,4 @@ export default function ComparePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
