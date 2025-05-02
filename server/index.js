@@ -16,10 +16,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ─── MongoDB Connection ───────────────────────────────────────────────────────
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nutribyte';
 console.log('🌐 Connecting to MongoDB:', MONGO_URI);
 
-mongoose.connect(MONGO_URI)
+mongoose
+  .connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
@@ -35,7 +37,8 @@ if (process.env.NODE_ENV === 'production') {
   const buildPath = path.join(__dirname, '../client/build');
   app.use(express.static(buildPath));
 
-  app.get('*', (req, res) => {
+  // <-- note the leading slash on the wildcard
+  app.get('/*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 } else {
