@@ -2,19 +2,21 @@
     "name": "nutribyte",
     "version": "1.0.0",
     "engines": {
-        "node": "16.x"
+      "node": "16.x"
     },
     "scripts": {
-        "start": "node server/index.js",
-        "load-data": "node server/scripts/loadData.js",
-        "heroku-postbuild": "cd client && npm install && npm run build",
-        "deploy": "npm run build:client && git add . && git commit -m '🚀 Deploy' && git push heroku main && sleep 5 && open https://nutribyte-fh-f7d701484817.herokuapp.com",
-        "build:client": "cd client && npm install && npm run build"
+      "start": "node server/index.js",
+      "load-data": "node server/scripts/loadData.js",
+      "heroku-postbuild": "cd client && npm install && npm run build",
+      "deploy": "npm run build:client && git add . && git commit -m '🚀 Deploy' && git push heroku main && sleep 5 && open https://nutribyte-fh-f7d701484817.herokuapp.com",
+      "build:client": "cd client && npm install && npm run build"
     },
+    "workspaces": ["client", "server"],
     "dependencies": {
-        "dotenv": "^16.5.0"
+      "dotenv": "^16.5.0"
     },
     "devDependencies": {
-        "nodemon": "^3.1.10"
+      "nodemon": "^3.1.10"
     }
-}
+  }
+
