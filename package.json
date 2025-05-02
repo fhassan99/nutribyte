@@ -7,7 +7,9 @@
     "scripts": {
         "start": "node server/index.js",
         "load-data": "node server/scripts/loadData.js",
-        "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
+        "heroku-postbuild": "cd client && npm install && npm run build",
+        "deploy": "npm run build:client && git add . && git commit -m '🚀 Deploy' && git push heroku main && sleep 5 && open https://nutribyte-fh-f7d701484817.herokuapp.com",
+        "build:client": "cd client && npm install && npm run build"
     },
     "dependencies": {
         "dotenv": "^16.5.0"
