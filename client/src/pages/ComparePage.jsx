@@ -1,9 +1,6 @@
-// client/src/pages/ComparePage.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export default function ComparePage() {
-  const navigate = useNavigate();
   const [search1, setSearch1]     = useState('');
   const [search2, setSearch2]     = useState('');
   const [sugs1, setSugs1]         = useState([]);
@@ -13,30 +10,31 @@ export default function ComparePage() {
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
-  // fetch suggestions for box 1
+  // Suggestions for box 1
   useEffect(() => {
     if (!search1 || showTable) {
       setSugs1([]);
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setSugs1(data.foods))
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(data => setSugs1(data.foods))          // <-- pull out `.foods`
       .catch(() => setSugs1([]));
   }, [search1, showTable]);
 
-  // fetch suggestions for box 2
+  // Suggestions for box 2
   useEffect(() => {
     if (!search2 || showTable) {
       setSugs2([]);
       return;
     }
     fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=5`)
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setSugs2(data.foods))
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(data => setSugs2(data.foods))          // <-- pull out `.foods`
       .catch(() => setSugs2([]));
   }, [search2, showTable]);
 
+  // Compare action
   const compare = async () => {
     if (!sel1 || !sel2) return;
     const [f1, f2] = await Promise.all([
@@ -46,7 +44,7 @@ export default function ComparePage() {
 
     const allNames = Array.from(new Set([
       ...f1.nutrients.map(n => n.nutrientName),
-      ...f2.nutrients.map(n => n.nutrientName),
+      ...f2.nutrients.map(n => n.nutrientName)
     ]));
 
     setNutrients(allNames.map(name => {
@@ -64,17 +62,15 @@ export default function ComparePage() {
   };
 
   const reset = () => {
-    setSearch1('');
-    setSearch2('');
-    setSel1(null);
-    setSel2(null);
+    setSearch1(''); setSearch2('');
+    setSel1(null);   setSel2(null);
     setShowTable(false);
     setNutrients([]);
   };
 
   return (
     <div className="compare-page container">
-      <button className="home-btn-blue" onClick={() => navigate('/')}>
+      <button className="home-btn-blue" onClick={() => window.history.back()}>
         ← Home
       </button>
       <h1>Compare Foods</h1>
@@ -93,16 +89,17 @@ export default function ComparePage() {
               setSel1(null);
             }}
           />
-          {sugs1.length > 0 && !sel1 && (
+          {/* only render if there are suggestions */}
+          {sugs1.length > 0 && (
             <div className="suggestions">
               {sugs1.map(f => (
                 <div
                   key={f.fdcId}
-                  className="suggestion-card"
+                  className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
                   onClick={() => {
                     setSel1(f);
                     setSearch1(f.description);
-                    setSugs1([]);
+                    setSugs1([]);  // clear and hide
                   }}
                 >
                   <strong>{f.description}</strong>
@@ -126,12 +123,12 @@ export default function ComparePage() {
               setSel2(null);
             }}
           />
-          {sugs2.length > 0 && !sel2 && (
+          {sugs2.length > 0 && (
             <div className="suggestions">
               {sugs2.map(f => (
                 <div
                   key={f.fdcId}
-                  className="suggestion-card"
+                  className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
                   onClick={() => {
                     setSel2(f);
                     setSearch2(f.description);
@@ -147,7 +144,6 @@ export default function ComparePage() {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="compare-actions">
         <button
           className="compare-btn"
@@ -163,7 +159,6 @@ export default function ComparePage() {
         )}
       </div>
 
-      {/* Comparison table */}
       {showTable && (
         <div className="compare-table-container">
           <button className="compare-close" onClick={() => setShowTable(false)}>
@@ -192,6 +187,7 @@ export default function ComparePage() {
     </div>
   );
 }
+
 
 
 
