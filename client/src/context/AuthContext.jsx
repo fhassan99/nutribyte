@@ -1,21 +1,22 @@
-// client/context/AuthContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Restore user from localStorage
   useEffect(() => {
-    const token     = localStorage.getItem('token');
-    const email     = localStorage.getItem('email');
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
     const firstName = localStorage.getItem('firstName');
-    const lastName  = localStorage.getItem('lastName');
+    const lastName = localStorage.getItem('lastName');
 
     if (token && email) {
       setUser({ token, email, firstName, lastName });
     }
+    setLoading(false);
 
     const handleStorage = (event) => {
       if (event.key === 'logout') {
@@ -29,7 +30,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (credsOrEmail, maybePassword) => {
-    const email    = typeof credsOrEmail === 'string' ? credsOrEmail : credsOrEmail.email;
+    const email = typeof credsOrEmail === 'string' ? credsOrEmail : credsOrEmail.email;
     const password = typeof credsOrEmail === 'string' ? maybePassword : credsOrEmail.password;
 
     const res = await fetch('/api/auth/login', {
@@ -49,6 +50,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('lastName', lastName);
 
     setUser({ token, email, firstName, lastName });
+    return { token, email, firstName, lastName };
   };
 
   const register = async (info) => {
@@ -69,6 +71,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('lastName', lastName);
 
     setUser({ token, email, firstName, lastName });
+    return { token, email, firstName, lastName };
   };
 
   const logout = () => {
@@ -77,13 +80,28 @@ export function AuthProvider({ children }) {
     localStorage.setItem('logout', Date.now());
   };
 
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    register
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
 
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
 
 
 

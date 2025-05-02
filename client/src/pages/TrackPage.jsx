@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Assuming you have an auth context
+import { useAuth } from '../context/AuthContext';
 
 export default function TrackPage() {
-  const { currentUser } = useAuth(); // Get current user from auth context
+  const { user } = useAuth();
   const [entries, setEntries] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [search, setSearch] = useState('');
@@ -15,22 +15,34 @@ export default function TrackPage() {
     fat: 0,
     sugars: 0
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Fetch entries for selected date
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        const response = await fetch(`/api/entries?date=${date}`);
+        setLoading(true);
+        const response = await fetch(`/api/entries?date=${date}`, {
+          headers: {
+            'Authorization': `Bearer ${user?.token}`
+          }
+        });
+        if (!response.ok) throw new Error('Failed to fetch entries');
         const data = await response.json();
         setEntries(data);
         calculateTotals(data);
       } catch (err) {
         console.error('Error fetching entries:', err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchEntries();
-  }, [date]);
+
+    if (user?.token) {
+      fetchEntries();
+    }
+  }, [date, user?.token]);
 
   // Calculate totals
   const calculateTotals = (entries) => {
@@ -52,10 +64,12 @@ export default function TrackPage() {
     }
     try {
       const response = await fetch(`/api/foods?search=${encodeURIComponent(query)}&page=1&limit=5`);
+      if (!response.ok) throw new Error('Search failed');
       const data = await response.json();
       setSuggestions(data.foods);
     } catch (err) {
       console.error('Search error:', err);
+      setSuggestions([]);
     }
   };
 
@@ -75,10 +89,14 @@ export default function TrackPage() {
 
       const response = await fetch('/api/entries', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
         body: JSON.stringify(newEntry)
       });
 
+      if (!response.ok) throw new Error('Failed to add entry');
       const data = await response.json();
       setEntries([...entries, data]);
       calculateTotals([...entries, data]);
@@ -92,7 +110,13 @@ export default function TrackPage() {
   // Delete food entry
   const deleteEntry = async (id) => {
     try {
-      await fetch(`/api/entries/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/entries/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to delete entry');
       const updatedEntries = entries.filter(entry => entry._id !== id);
       setEntries(updatedEntries);
       calculateTotals(updatedEntries);
@@ -106,10 +130,14 @@ export default function TrackPage() {
     try {
       const response = await fetch(`/api/entries/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
         body: JSON.stringify({ time: newTime })
       });
 
+      if (!response.ok) throw new Error('Failed to update time');
       const updatedEntry = await response.json();
       setEntries(entries.map(entry =>
         entry._id === id ? updatedEntry : entry
@@ -126,11 +154,9 @@ export default function TrackPage() {
       </button>
 
       <h1>Track My Calories</h1>
-      {currentUser && (
-        <p>Logged in as {currentUser.email}</p> // Display actual user email
+      {user && (
+        <p>Logged in as {user.firstName ? `${user.firstName} ${user.lastName}` : user.email}</p>
       )}
-
-      {/* Nutrition summary chart would go here */}
 
       <div className="nutrition-summary">
         <div className="summary-item">
@@ -157,49 +183,55 @@ export default function TrackPage() {
 
       <h2>Entries on {new Date(date).toLocaleDateString()}</h2>
 
-      <table className="entries-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Description</th>
-            <th>Cal</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map(entry => (
-            <tr key={entry._id}>
-              <td>
-                <input
-                  type="time"
-                  className="time-input"
-                  value={entry.time}
-                  onChange={(e) => updateEntryTime(entry._id, e.target.value)}
-                />
-              </td>
-              <td>{entry.description}</td>
-              <td>{entry.calories.toFixed(0)}</td>
-              <td>
-                <button
-                  className="delete-btn"
-                  onClick={() => deleteEntry(entry._id)}
-                  title="Delete entry"
-                >
-                  ×
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {loading ? (
+        <p>Loading entries...</p>
+      ) : (
+        <>
+          <table className="entries-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Description</th>
+                <th>Cal</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map(entry => (
+                <tr key={entry._id}>
+                  <td>
+                    <input
+                      type="time"
+                      className="time-input"
+                      value={entry.time}
+                      onChange={(e) => updateEntryTime(entry._id, e.target.value)}
+                    />
+                  </td>
+                  <td>{entry.description}</td>
+                  <td>{entry.calories.toFixed(0)}</td>
+                  <td>
+                    <button
+                      className="delete-btn"
+                      onClick={() => deleteEntry(entry._id)}
+                      title="Delete entry"
+                    >
+                      ×
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <div className="totals">
-        Total: Calories {totals.calories.toFixed(2)},
-        Protein {totals.protein.toFixed(2)}g,
-        Carbs {totals.carbs.toFixed(2)}g,
-        Fat {totals.fat.toFixed(2)}g,
-        Sugars {totals.sugars.toFixed(2)}g
-      </div>
+          <div className="totals">
+            Total: Calories {totals.calories.toFixed(2)},
+            Protein {totals.protein.toFixed(2)}g,
+            Carbs {totals.carbs.toFixed(2)}g,
+            Fat {totals.fat.toFixed(2)}g,
+            Sugars {totals.sugars.toFixed(2)}g
+          </div>
+        </>
+      )}
 
       <div className="track-controls">
         <input
@@ -238,7 +270,6 @@ export default function TrackPage() {
     </div>
   );
 }
-
 
 
 
