@@ -23,7 +23,6 @@ export default function SearchPage() {
   useEffect(() => {
     if (!input) {
       setFoods([]);
-      setCount(0);
       setError('');
       return;
     }
@@ -33,13 +32,11 @@ export default function SearchPage() {
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then(data => {
         setFoods(data.foods);
-        setCount(data.count);
       })
       .catch(err => {
         console.error('Fetch error:', err);
         setError('Failed to load results');
         setFoods([]);
-        setCount(0);
       })
       .finally(() => setLoading(false));
   }, [input]);
