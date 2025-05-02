@@ -1,3 +1,4 @@
+// client/components/RegistrationModal.jsx
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -33,9 +34,7 @@ export default function RegistrationModal({ onClose, onSwitchToLogin }) {
       return;
     }
     if (!passwordIsValid(info.password)) {
-      setError(
-        'Password must be ≥6 chars, include an uppercase letter, a number & a special character.'
-      );
+      setError('Password must be ≥6 chars, include uppercase, number & special character.');
       return;
     }
     try {
@@ -51,32 +50,10 @@ export default function RegistrationModal({ onClose, onSwitchToLogin }) {
       <div className="modal-content" onClick={e => e.stopPropagation()} role="dialog" aria-labelledby="register-heading">
         <h2 id="register-heading">Register</h2>
         <form onSubmit={handleRegister}>
-          <input
-            name="firstName"
-            placeholder="First name"
-            value={info.firstName}
-            onChange={handleChange}
-          />
-          <input
-            name="lastName"
-            placeholder="Last name"
-            value={info.lastName}
-            onChange={handleChange}
-          />
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={info.email}
-            onChange={handleChange}
-          />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={info.password}
-            onChange={handleChange}
-          />
+          <input name="firstName" placeholder="First name" value={info.firstName} onChange={handleChange} />
+          <input name="lastName" placeholder="Last name" value={info.lastName} onChange={handleChange} />
+          <input name="email" type="email" placeholder="Email" value={info.email} onChange={handleChange} />
+          <input name="password" type="password" placeholder="Password" value={info.password} onChange={handleChange} />
 
           <p className="text-small">
             Password must be at least 6 characters, with uppercase, number & special character.

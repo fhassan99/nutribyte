@@ -15,7 +15,9 @@ router.post('/register', async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).send('Email already registered');
     const user = await User.create({ firstName, lastName, email, password });
-    res.status(201).json({ user: { id: user._id, firstName, lastName, email } });
+    const token = jwt.sign({ sub: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ user: { id: user._id, firstName, lastName, email }, token });
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Registration failed');
