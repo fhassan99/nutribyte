@@ -75,6 +75,21 @@ textarea {
   box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.3);
 }
 
+/* — BUTTONS — */
+.home-btn-blue {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.home-btn-blue:hover {
+  background: var(--secondary);
+  transform: scale(1.05);
+}
+
 /* — HOMEPAGE — */
 .homepage {
   background: var(--surface);
@@ -104,19 +119,6 @@ textarea {
   justify-content: center;
   gap: 1rem;
   margin: 2rem 0;
-}
-.home-btn-blue {
-  background: var(--primary);
-  color: var(--on-primary);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-}
-.home-btn-blue:hover {
-  background: var(--secondary);
-  transform: scale(1.05);
 }
 
 /* — SEARCH BAR & GRID — */
@@ -163,17 +165,17 @@ textarea {
   background: var(--surface);
   padding: 1rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .card:hover,
 .food-card:hover {
   transform: scale(1.02);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.7);
 }
 
-/* — DETAIL & COMPARE TABLES — */
+/* — DETAIL & COMPARE CONTAINERS — */
 .detail-container,
 .compare-container,
 .compare-section {
@@ -181,8 +183,9 @@ textarea {
   border-radius: 1rem;
   padding: 2rem;
   margin-top: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -261,7 +264,7 @@ th {
   border-left: 4px solid var(--primary);
 }
 
-/* — COMPARE BUTTONS — */
+/* — COMPARE BUTTON — */
 .compare-btn {
   background: var(--primary);
   color: var(--on-primary);
@@ -385,6 +388,7 @@ th {
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-top: 1rem;
 }
 .track-controls input[type="time"] {
   background: var(--bg);
@@ -471,6 +475,23 @@ th {
   color: var(--text-secondary);
 }
 
+/* Recharts Overrides */
+.recharts-cartesian-axis-tick text {
+  fill: var(--text-secondary);
+}
+.recharts-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--text-secondary) !Important;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+.recharts-default-tooltip .recharts-tooltip-label {
+  color: var(--primary);
+}
+.recharts-tooltip-item {
+  color: var(--text);
+}
+
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 768px) {
   .compare-controls {
@@ -507,6 +528,3 @@ th {
     font-size: 1.25rem;
   }
 }
-
-
-
