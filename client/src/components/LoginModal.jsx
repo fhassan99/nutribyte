@@ -18,6 +18,10 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-header">
+        <h1>Welcome back to Calorie Tracker</h1>
+        <p>Log in to track your calories and manage your diet.</p>
+      </div>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <input
           type="email"
