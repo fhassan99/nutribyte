@@ -507,20 +507,6 @@ th {
     font-size: 1.25rem;
   }
 }
-  .summary-card .label {
-    font-size: 0.75rem;
-  }
-  .compare-btn {
-    padding: 0.5rem 1rem;
-  }
-}
-/* — FOOTER STYLING — */
-.footer {
-  background: var(--bg);
-  color: var(--text-secondary);
-  text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-}
+
 
 
