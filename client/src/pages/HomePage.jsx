@@ -24,7 +24,7 @@ export default function HomePage() {
       <img src={reactLogo} alt="React logo" className="react-logo" />
       <img src={nutriLogo} alt="NutriByte logo" className="nutri-logo" />
 
-      <h1>Welcome to NutriByte</h1>
+      <h1>NutriByte</h1>
       <div className="home-icons">
         <FaAppleAlt size={32} style={{ margin: "0 .5rem" }} />
         <FaCarrot size={32} style={{ margin: "0 .5rem" }} />
