@@ -14,7 +14,6 @@ export default function HomePage() {
   const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
 
-  // Prompt login on first visit if not already logged in
   useEffect(() => {
     if (!user) setShowLogin(true);
   }, [user]);
@@ -51,13 +50,21 @@ export default function HomePage() {
       </p>
       <p className="creator">Created by Farhan Hassan</p>
 
+      {/* <-- Updated nav-buttons --> */}
       <div className="nav-buttons">
-        <button className="home-btn-blue" onClick={() => navigate("/search")}>
+        <button
+          className="home-btn-blue"
+          onClick={() => navigate("/search")}
+        >
           Search Foods
         </button>
-        <button className="home-btn-blue" onClick={() => navigate("/compare")}>
+        <button
+          className="home-btn-blue"
+          onClick={() => navigate("/compare")}
+        >
           Compare Foods
         </button>
+
         {user ? (
           <>
             <button
@@ -66,7 +73,10 @@ export default function HomePage() {
             >
               Track My Calories
             </button>
-            <button className="home-btn-blue" onClick={logout}>
+            <button
+              className="home-btn-blue"
+              onClick={logout}
+            >
               Logout
             </button>
           </>
@@ -87,6 +97,7 @@ export default function HomePage() {
           </>
         )}
       </div>
+      {/* --> */}
 
       {showLogin && (
         <LoginModal
@@ -110,3 +121,4 @@ export default function HomePage() {
     </div>
   );
 }
+
