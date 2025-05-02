@@ -166,3 +166,91 @@ This project is open-source and available under the MIT License.
 
 Enjoy exploring your nutrition data with NutriByte!
 
+classDiagram
+  %% ==============================
+  %% Backend Models
+  %% ==============================
+  class Food {
+    +Number fdcId
+    +String description
+    +String brandOwner
+    +String ingredients
+    +Nutrient[] nutrients
+    +Attribute[] attributes
+  }
+  class Nutrient {
+    +Number nutrientId
+    +String nutrientName
+    +String nutrientUnit
+    +Number amount
+  }
+  class Attribute {
+    +Number attributeId
+    +String name
+    +String value
+  }
+  class CalorieEntry {
+    +ObjectId _id
+    +Number fdcId
+    +String description
+    +Date date
+    +String time
+    +Number calories
+    +Number protein
+    +Number carbs
+    +Number fat
+    +Number sugars
+    +ObjectId userId
+  }
+  class User {
+    +ObjectId _id
+    +String email
+    +String passwordHash
+    +String firstName
+    +String lastName
+  }
+
+  %% Relationships
+  Food "1" <-- "0..*" CalorieEntry : references
+  User "1" <-- "0..*" CalorieEntry : owns
+
+  %% ==============================
+  %% Frontend Pages / Components
+  %% ==============================
+  class SearchPage {
+    +searchTerm: String
+    +foods: Food[]
+    +featuredFood: Food
+    +void handleSearch()
+    +void selectFood(fdcId)
+  }
+  class ComparePage {
+    +sel1: Food
+    +sel2: Food
+    +NutrientComparison[] nutrients
+    +void compareFoods()
+    +void reset()
+  }
+  class TrackPage {
+    +date: Date
+    +entries: CalorieEntry[]
+    +totals: { Calories, Protein, Carbs, Fat, Sugars }
+    +void addEntry(food: Food)
+    +void deleteEntry(entryId)
+    +void updateEntryTime(entryId, time)
+  }
+  class FoodDetail {
+    +food: Food
+  }
+
+  %% Frontend ↔ Backend interactions
+  SearchPage --> Food : GET /api/foods?search=
+  FoodDetail --> Food  : GET /api/foods/:fdcId
+  ComparePage --> Food : GET /api/foods/:fdcId
+  ComparePage --> Food : GET /api/foods/:fdcId
+  TrackPage --> CalorieEntry : GET /api/entries?date=
+  TrackPage --> CalorieEntry : POST /api/entries
+  TrackPage --> CalorieEntry : PATCH /api/entries/:id
+  TrackPage --> CalorieEntry : DELETE /api/entries/:id
+
+
