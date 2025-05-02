@@ -1,3 +1,4 @@
+console.log('Mounting routes...');
 const path = require('path');
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -26,8 +27,14 @@ mongoose
 
 // ─── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRouter);
-app.use('/api/foods', foodsRouter);
+console.log('Mounted /api/foods');
+
+app.use('/api/foods:fdcId', foodsRouter);
+console.log('Mounted /api/foods');
+
 app.use('/api/entries', authMiddleware, entriesRouter);
+console.log('Mounted /api/foods');
+
 
 // ─── Serve React Frontend in Production ────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
