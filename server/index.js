@@ -1,5 +1,3 @@
-// server/index.js
-console.log('🌐 Connected to MongoDB:', MONGO_URI);
 const path = require('path');
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -16,16 +14,18 @@ const authMiddleware = require('./middleware/auth');
 
 const app = express();
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
-// ─── MongoDB Connection ───────────────────────────────────────────────────────
+// 🛠 FIX: Move log below declaration
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/nutribyte';
+console.log('🌐 Connected to MongoDB:', MONGO_URI);
+
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
+
 
 // ─── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRouter);
