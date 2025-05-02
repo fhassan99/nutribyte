@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function SearchPage() {
   const [input, setInput] = useState('');
@@ -11,8 +11,19 @@ export default function SearchPage() {
   const [error, setError] = useState('');
   const [foodOfDay, setFoodOfDay] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Fetch Food of the Day
+  // Read query param on load
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search');
+    if (q) {
+      setInput(q);
+      setPage(1);
+    }
+  }, [location.search]);
+
+  // Fetch Food of the Day (unrelated to search)
   useEffect(() => {
     fetch('/api/foods?search=&page=1&limit=50')
       .then(res => res.ok ? res.json() : Promise.reject())
@@ -26,7 +37,7 @@ export default function SearchPage() {
       .catch(err => console.error('Food of the Day fetch failed:', err));
   }, []);
 
-  // Fetch search results
+  // Fetch search results when input or page changes
   useEffect(() => {
     const query = input.trim();
     if (!query) {
@@ -41,6 +52,7 @@ export default function SearchPage() {
     fetch(`/api/foods?search=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then(data => {
+        console.log('🧪 Search response:', data);
         setFoods(data.foods || []);
         setCount(data.count || 0);
       })
@@ -79,8 +91,10 @@ export default function SearchPage() {
           placeholder="Start typing to search…"
           value={input}
           onChange={e => {
-            setInput(e.target.value);
+            const val = e.target.value;
+            setInput(val);
             setPage(1);
+            navigate(`/search?search=${encodeURIComponent(val)}`);
           }}
         />
       </div>
@@ -117,6 +131,7 @@ export default function SearchPage() {
     </div>
   );
 }
+
 
 
 
