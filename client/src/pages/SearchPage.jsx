@@ -11,44 +11,37 @@ export default function SearchPage() {
 
   // Food of the Day
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const response = await fetch('/api/foods?search=&page=1&limit=1');
-        if (!response.ok) return;
-        const data = await response.json();
+    fetch(`/api/foods?search=&page=1&limit=1`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
         if (data.foods.length) setFeatured(data.foods[0]);
-      } catch (err) {
-        console.error('Featured food fetch error:', err);
-      }
-    };
-
-    fetchFeatured();
+      })
+      .catch(() => {});
   }, []);
 
-  // Search handler with debounce
+  // Live typeahead search on every keystroke
   useEffect(() => {
-    if (!input.trim()) {
+    if (!input) {
       setFoods([]);
+      setCount(0);
       setError('');
       return;
     }
-
-    const timer = setTimeout(() => {
-      setLoading(true);
-      setError('');
-
-      fetch(`/api/foods?search=${encodeURIComponent(input)}&page=1&limit=20`)
-        .then(res => res.ok ? res.json() : Promise.reject('Search failed'))
-        .then(data => setFoods(data.foods))
-        .catch(err => {
-          console.error('Search error:', err);
-          setError(err);
-          setFoods([]);
-        })
-        .finally(() => setLoading(false));
-    }, 300);
-
-    return () => clearTimeout(timer);
+    setLoading(true);
+    setError('');
+    fetch(`/api/foods?search=${encodeURIComponent(input)}&page=1&limit=20`)
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(data => {
+        setFoods(data.foods);
+        setCount(data.count);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setError('Failed to load results');
+        setFoods([]);
+        setCount(0);
+      })
+      .finally(() => setLoading(false));
   }, [input]);
 
   return (
@@ -58,43 +51,46 @@ export default function SearchPage() {
       </button>
 
       <h1>Food Search</h1>
-      <p className="search-hint">Start typing to search foods...</p>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search food or brand..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          autoFocus
-        />
-      </div>
-
+      {/* Food of the Day - Moved above search */}
       {featured && (
-        <div className="featured-food">
+        <div className="featured-section">
           <h2>Food of the Day</h2>
           <div
-            className="food-card"
+            className="food-card featured-card"
             onClick={() => navigate(`/foods/${featured.fdcId}`)}
           >
             <h3>{featured.description}</h3>
-            <p>{featured.brandOwner || 'Generic'}</p>
+            <p>{featured.brandOwner || 'Unknown Brand'}</p>
           </div>
         </div>
       )}
 
-      {loading && <p className="loading">Searching...</p>}
+      <p style={{ color: 'var(--text-secondary)', margin: '1rem 0' }}>
+        Start typing to search foods…
+      </p>
+
+      <div className="search-bar">
+        <input
+          placeholder="Search food or brand…"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          autoFocus
+        />
+      </div>
+
+      {loading && <p>Loading…</p>}
       {error && <p className="error">{error}</p>}
 
-      <div className="food-grid">
-        {foods.map(food => (
+      <div className="grid">
+        {foods.map(f => (
           <div
-            key={food.fdcId}
+            key={f.fdcId}
             className="food-card"
-            onClick={() => navigate(`/foods/${food.fdcId}`)}
+            onClick={() => navigate(`/foods/${f.fdcId}`)}
           >
-            <h3>{food.description}</h3>
-            <p>{food.brandOwner || 'Generic'}</p>
+            <h3>{f.description}</h3>
+            <p>{f.brandOwner || 'Unknown Brand'}</p>
           </div>
         ))}
       </div>
