@@ -16,7 +16,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/nutribyte';
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nutribyte';
 console.log('🌐 Connecting to MongoDB:', MONGO_URI);
 
 mongoose.connect(MONGO_URI)
