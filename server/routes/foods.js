@@ -8,14 +8,17 @@ router.get('/', async (req, res) => {
     const { search = '', page = 1, limit = 20 } = req.query;
     const pg = Math.max(1, Number(page));
     const lim = Math.max(1, Number(limit));
-    const filter = {
-      $or: [
-        { description: new RegExp(search, 'i') },
-        { brandOwner: new RegExp(search, 'i') }
-      ]
-    };
 
-    // count & page in parallel
+    const filter =
+      search.trim() === ''
+        ? {}
+        : {
+            $or: [
+              { description: new RegExp(search, 'i') },
+              { brandOwner: new RegExp(search, 'i') }
+            ]
+          };
+
     const [count, foods] = await Promise.all([
       Food.countDocuments(filter),
       Food.find(filter)
@@ -25,10 +28,11 @@ router.get('/', async (req, res) => {
 
     res.json({ foods, count });
   } catch (err) {
-    console.error(err);
+    console.error('❌ Food search error:', err);
     res.status(500).json({ error: 'Server error fetching foods' });
   }
 });
+
 
 // GET /api/foods/:fdcId
 router.get('/:fdcId', async (req, res) => {
