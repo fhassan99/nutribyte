@@ -1,3 +1,68 @@
+/* — 1) RESET & BOX-SIZING — */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* — 2) COLOR PALETTE & TYPOGRAPHY — */
+:root {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --primary: #bb86fc;
+  --on-primary: #000000;
+  --secondary: #03dac6;
+  --text: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --error: #cf6679;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+               sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* — 3) GLOBAL UTILITY CLASSES — */
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.error {
+  color: var(--error);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* — 4) FORM ELEMENTS & DATE PICKER — */
+input,
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+.date-picker {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.date-picker:hover,
+.date-picker:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(187,134,252,0.3);
+}
+
 /* — HOMEPAGE — */
 .homepage {
   background: var(--surface);
@@ -43,61 +108,45 @@
   transform: scale(1.05);
 }
 
-/* Featured Food Section */
-.featured-section {
+/* — SEARCH BAR & GRID — */
+.search-bar {
+  display: flex;
   margin: 1.5rem 0;
 }
-
-.featured-section h2 {
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-}
-
-.featured-card {
-  background: var(--surface);
-  padding: 1.25rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  border: 2px solid var(--primary);
-}
-
-.featured-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.7);
-}
-
-.featured-card h3 {
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-}
-
-/* Search Bar Adjustments */
-.search-bar {
-  margin: 1rem 0 1.5rem;
-}
-
 .search-bar input {
-  width: 100%;
+  flex: 1;
   padding: 0.75rem 1rem;
   border-radius: 9999px;
   border: 1px solid var(--text-secondary);
   background: var(--bg);
   color: var(--text);
-  font-size: 1rem;
+}
+.search-bar button {
+  margin-left: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: none;
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.search-bar button:hover {
+  background: var(--secondary);
+  transform: scale(1.05);
 }
 
-/* Grid Layout */
 .grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   margin-top: 1rem;
 }
-
-.food-card {
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.card {
   background: var(--surface);
   padding: 1rem;
   border-radius: 1rem;
@@ -105,19 +154,9 @@
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-
-.food-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-}
-
-.food-card h3 {
-  margin-bottom: 0.5rem;
-}
-
-.food-card p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* — DETAIL & COMPARE TABLES — */
@@ -297,145 +336,15 @@ th {
   color: var(--on-primary);
 }
 
-/* Compare Page Styles */
-.selected-food {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--surface);
-  border-radius: 0.5rem;
-}
-
-.selected-food h3 {
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-}
-
-.suggestions {
-  position: absolute;
-  z-index: 10;
-  width: 100%;
-  max-height: 300px;
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid var(--text-secondary);
-  border-radius: 0 0 0.5rem 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.suggestion-card {
-  padding: 0.75rem;
-  cursor: pointer;
-  border-bottom: 1px solid var(--bg);
-  transition: background 0.2s;
-}
-
-.suggestion-card:hover {
-  background: rgba(187, 134, 252, 0.1);
-}
-
-.suggestion-card:last-child {
-  border-bottom: none;
-}
-
-.compare-box {
-  position: relative;
-}
-
-.compare-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--text-secondary);
-  border-radius: 0.5rem;
-  background: var(--surface);
-  color: var(--text);
-}
-
-.compare-input:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-/* Track Page Styles */
-.entries-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-}
-
-.entries-table th,
-.entries-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--text-secondary);
-}
-
-.entries-table th {
-  background: var(--bg);
-  color: var(--primary);
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: var(--error);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 0.5rem;
-  transition: color 0.2s;
-}
-
-.delete-btn:hover {
-  color: #ff4d4d;
-}
-
-.totals {
-  margin: 1rem 0;
-  padding: 0.75rem;
-  background: var(--surface);
-  border-radius: 0.5rem;
-  font-weight: bold;
-}
-
-.nutrition-summary {
-  display: flex;
-  justify-content: space-between;
-  margin: 1.5rem 0;
-  gap: 0.5rem;
-}
-
-.summary-item {
-  flex: 1;
-  text-align: center;
-  padding: 0.75rem;
-  background: var(--surface);
-  border-radius: 0.5rem;
-}
-
-.summary-item .value {
-  display: block;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: var(--primary);
-}
-
-.summary-item .label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
+/* — TRACK PAGE — */
 .track-controls {
   display: flex;
+  align-items: center;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin: 2rem 0;
 }
-
-.track-controls .date-picker {
-  flex: 1;
-  max-width: 150px;
-}
-
-.track-controls .search-bar {
-  flex: 2;
-  position: relative;
+.entries-table {
+  margin-bottom: 2rem;
 }
 
 /* — MODAL STYLING — */
@@ -511,20 +420,136 @@ th {
   font-weight: bold;
   color: var(--text-secondary);
 }
-/* App.css or component styles */
-.container {
-  padding: 1rem;
-  max-width: 100%;
-  box-sizing: border-box;
-}
 
-.track-controls input,
-.search-bar input {
-  width: 100%;
-  max-width: 250px;
-}
-
-.search-bar {
-  flex-wrap: nowrap;
+/* — Track Page Specific — */
+.nutrition-summary {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
   gap: 0.5rem;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: 0.5rem;
+}
+
+.summary-item .value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.summary-item .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.input-container {
+  position: relative;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.clear-btn:hover {
+  color: var(--error);
+}
+
+.selected-preview {
+  margin: 1.5rem 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.selected-food {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.selected-food h3 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Featured Food Section */
+.featured-section {
+  margin: 1.5rem 0;
+}
+
+.featured-section h2 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.featured-card {
+  background: var(--surface);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid var(--primary);
+}
+
+.featured-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.7);
+}
+
+.featured-card h3 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .compare-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nutrition-summary {
+    flex-wrap: wrap;
+  }
+
+  .summary-item {
+    min-width: calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .homepage {
+    margin: 1rem;
+    padding: 2rem 1rem;
+  }
+
+  .track-controls {
+    flex-direction: column;
+  }
+
+  .track-controls .date-picker {
+    max-width: 100%;
+  }
 }
