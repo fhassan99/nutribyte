@@ -19,7 +19,6 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
         <input
           type="email"
           placeholder="Email"
