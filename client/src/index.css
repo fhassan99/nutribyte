@@ -306,6 +306,22 @@ th {
 .compare-close:hover {
   color: var(--primary);
 }
+.reset-btn {
+  background: transparent;
+  color: var(--error);
+  border: 2px solid var(--error);
+  font-size: 1rem;
+  padding: 0.75rem 2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.reset-btn:hover {
+  background: var(--error);
+  color: var(--on-primary);
+}
 
 /* — MODAL STYLING — */
 .modal-content input {

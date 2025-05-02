@@ -204,7 +204,6 @@ export default function TrackPage() {
       </div>
 
       {/* Entries table */}
-      <h2>Entries on {new Date(date).toLocaleDateString()}</h2>
       <table className="entries-table">
         <thead>
           <tr>
