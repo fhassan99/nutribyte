@@ -1,7 +1,8 @@
-const path = require('path');
+// server/index.js
+const path    = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const cors    = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -37,8 +38,8 @@ if (process.env.NODE_ENV === 'production') {
   const buildPath = path.join(__dirname, '../client/build');
   app.use(express.static(buildPath));
 
-  // <-- note the leading slash on the wildcard
-  app.get('/*', (req, res) => {
+  // LEGAL “catch-all” for Express 5 / path-to-regexp v6
+  app.get('*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 } else {
@@ -52,6 +53,7 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
 
 
 
