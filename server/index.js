@@ -1,12 +1,11 @@
-console.log('Mounting routes...');
 const path = require('path');
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const authRouter     = require('./routes/auth');
 const foodsRouter    = require('./routes/foods');
@@ -20,21 +19,16 @@ app.use(express.json());
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/nutribyte';
 console.log('🌐 Connecting to MongoDB:', MONGO_URI);
 
-mongoose
-  .connect(MONGO_URI)
+mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // ─── API Routes ────────────────────────────────────────────────────────────────
+console.log('🔁 Mounting API routes...');
 app.use('/api/auth', authRouter);
-console.log('Mounted /api/foods');
-
-app.use('/api/foods:fdcId', foodsRouter);
-console.log('Mounted /api/foods');
-
+app.use('/api/foods', foodsRouter);
 app.use('/api/entries', authMiddleware, entriesRouter);
-console.log('Mounted /api/foods');
-
+console.log('✅ All routes mounted');
 
 // ─── Serve React Frontend in Production ────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
@@ -55,6 +49,7 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
 
 
 

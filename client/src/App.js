@@ -15,7 +15,6 @@ export default function App() {
           <Route path="/"              element={<HomePage />} />
           <Route path="/search"        element={<SearchPage />} />
           <Route path="/compare"       element={<ComparePage />} />
-          <Route path="/foods/:fdcId"  element={<FoodDetail />} />
           <Route path="/track"         element={<TrackPage />} />
         </Routes>
       </Router>
