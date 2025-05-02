@@ -11,7 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import '../App.css';
+import '../index.css';
 
 export default function TrackPage() {
   const { user } = useContext(AuthContext);
@@ -25,9 +25,7 @@ export default function TrackPage() {
   const token = user?.token;
 
   // State
-  const [date, setDate] = useState(
-    () => new Date().toISOString().slice(0, 10)
-  );
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [entries, setEntries] = useState([]);
   const [search, setSearch] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -49,7 +47,7 @@ export default function TrackPage() {
     if (token) loadEntries();
   }, [loadEntries, token]);
 
-  // Compute totals & chart data
+  // Compute daily totals & chart data
   const totals = entries.reduce(
     (acc, e) => {
       acc.Calories += e.calories || 0;
@@ -66,7 +64,7 @@ export default function TrackPage() {
     value: Number(value.toFixed(2))
   }));
 
-  // Live suggestions
+  // Live suggestions as user types
   useEffect(() => {
     if (!search) {
       setSuggestions([]);
@@ -84,10 +82,25 @@ export default function TrackPage() {
       .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(full => {
         // format HH:MM
-        const entryTime = new Date()
-          .toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' });
-        const getAmt = name =>
-          full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
+        const entryTime = new Date().toLocaleTimeString('en-GB', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        // helper: try exact names then fallback to partial match ("Sugar")
+        const getAmt = names => {
+          const list = Array.isArray(names) ? names : [names];
+          let nut = full.nutrients.find(n => list.includes(n.nutrientName));
+          if (!nut) {
+            nut = full.nutrients.find(n =>
+              list.some(name => n.nutrientName.includes(name)) ||
+              /sugar/i.test(n.nutrientName)
+            );
+          }
+          return nut ? nut.amount : 0;
+        };
+
         const payload = {
           fdcId: full.fdcId,
           description: full.description,
@@ -97,8 +110,9 @@ export default function TrackPage() {
           protein:  getAmt('Protein'),
           carbs:    getAmt('Carbohydrate, by difference'),
           fat:      getAmt('Total lipid (fat)'),
-          sugars:   getAmt('Sugars, total')
+          sugars:   getAmt(['Sugars, total', 'Sugars, total including NLEA'])
         };
+
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
@@ -135,12 +149,13 @@ export default function TrackPage() {
       <button className="home-btn-blue" onClick={() => navigate(-1)}>
         ← Back
       </button>
+
       <h1>Track My Calories</h1>
       <p style={{ color: 'var(--secondary)' }}>
         Logged in as <strong>{user.email}</strong>
       </p>
 
-      {/* Summary cards */}
+      {/* Nutrition summary cards */}
       <div className="nutrition-summary">
         {Object.entries(totals).map(([nutrient, amt]) => (
           <div key={nutrient} className="summary-card">
@@ -164,7 +179,7 @@ export default function TrackPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Date picker only */}
+      {/* Date picker */}
       <div className="track-controls">
         <input
           type="date"
@@ -175,7 +190,7 @@ export default function TrackPage() {
       </div>
 
       {/* Entries table */}
-      <h2>Entries on {new Date(date).toLocaleDateString()}</h2>
+
       <table className="entries-table">
         <thead>
           <tr>
@@ -186,24 +201,23 @@ export default function TrackPage() {
             <th>Carb</th>
             <th>Fat</th>
             <th>Sug</th>
-            <th> </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {entries.length === 0
-            ? (
-              <tr>
-                <td colSpan="8">No entries found for this date</td>
-              </tr>
-            )
-            : entries.map(e => (
+          {entries.length === 0 ? (
+            <tr>
+              <td colSpan="8">No entries found for this date</td>
+            </tr>
+          ) : (
+            entries.map(e => (
               <tr key={e._id}>
                 <td>
                   <input
                     type="time"
                     className="time-input"
                     value={e.time || '00:00'}
-                    onChange={ev => {
+                    onChange={ev =>
                       fetch(`/api/entries/${e._id}`, {
                         method: 'PATCH',
                         headers: {
@@ -211,8 +225,8 @@ export default function TrackPage() {
                           Authorization: `Bearer ${token}`
                         },
                         body: JSON.stringify({ time: ev.target.value })
-                      }).then(() => loadEntries());
-                    }}
+                      }).then(() => loadEntries())
+                    }
                   />
                 </td>
                 <td>{e.description}</td>
@@ -231,7 +245,8 @@ export default function TrackPage() {
                   </button>
                 </td>
               </tr>
-            ))}
+            ))
+          )}
         </tbody>
       </table>
 
@@ -247,11 +262,7 @@ export default function TrackPage() {
       {suggestions.length > 0 && (
         <div className="grid">
           {suggestions.map(f => (
-            <div
-              key={f.fdcId}
-              className="card"
-              onClick={() => addEntry(f)}
-            >
+            <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
               <h3>{f.description}</h3>
               <p>{f.brandOwner || 'Unknown Brand'}</p>
             </div>
@@ -261,6 +272,7 @@ export default function TrackPage() {
     </div>
   );
 }
+
 
 
 
