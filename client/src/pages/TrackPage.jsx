@@ -1,185 +1,217 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts';
-import '../App.css';
 
 export default function TrackPage() {
-  const { user } = useContext(AuthContext);
+  const [entries, setEntries] = useState([]);
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [search, setSearch] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [totals, setTotals] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+    sugars: 0
+  });
   const navigate = useNavigate();
 
-  // redirect if not logged in
+  // Fetch entries for selected date
   useEffect(() => {
-    if (!user) navigate('/');
-  }, [user, navigate]);
+    const fetchEntries = async () => {
+      try {
+        const response = await fetch(`/api/entries?date=${date}`);
+        const data = await response.json();
+        setEntries(data);
+        calculateTotals(data);
+      } catch (err) {
+        console.error('Error fetching entries:', err);
+      }
+    };
+    fetchEntries();
+  }, [date]);
 
-  const token = user?.token;
-  const [date, setDate]         = useState(() => new Date().toISOString().slice(0, 10));
-  const [entries, setEntries]   = useState([]);
-  const [search, setSearch]     = useState('');
-  const [suggestions, setSuggestions] = useState([]);
+  // Calculate totals
+  const calculateTotals = (entries) => {
+    const newTotals = entries.reduce((acc, entry) => ({
+      calories: acc.calories + (entry.calories || 0),
+      protein: acc.protein + (entry.protein || 0),
+      carbs: acc.carbs + (entry.carbs || 0),
+      fat: acc.fat + (entry.fat || 0),
+      sugars: acc.sugars + (entry.sugars || 0)
+    }), { calories: 0, protein: 0, carbs: 0, fat: 0, sugars: 0 });
+    setTotals(newTotals);
+  };
 
-  const loadEntries = useCallback(() => {
-    fetch(`/api/entries?date=${date}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => setEntries(data))
-      .catch(() => setEntries([]));
-  }, [date, token]);
-
-  useEffect(() => {
-    if (token) loadEntries();
-  }, [loadEntries, token]);
-
-  // compute totals
-  const totals = entries.reduce((acc, e) => {
-    acc.Calories += e.calories || 0;
-    acc.Protein  += e.protein  || 0;
-    acc.Carbs    += e.carbs    || 0;
-    acc.Fat      += e.fat      || 0;
-    acc.Sugars   += e.sugars   || 0;
-    return acc;
-  }, { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 });
-
-  const chartData = Object.entries(totals).map(([name, value]) => ({
-    name,
-    value: Number(value.toFixed(2))
-  }));
-
-  // live suggestions
-  useEffect(() => {
-    if (!search) {
+  // Handle food search
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
       setSuggestions([]);
       return;
     }
-    fetch(`/api/foods?search=${encodeURIComponent(search)}&page=1&limit=10`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setSuggestions(data.foods))
-      .catch(() => setSuggestions([]));
-  }, [search]);
+    try {
+      const response = await fetch(`/api/foods?search=${encodeURIComponent(query)}&page=1&limit=5`);
+      const data = await response.json();
+      setSuggestions(data.foods);
+    } catch (err) {
+      console.error('Search error:', err);
+    }
+  };
 
-  const addEntry = food => {
-    fetch(`/api/foods/${food.fdcId}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(full => {
-        const getAmt = name =>
-          full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
-        const entry = {
-          date,
-          time: new Date().toLocaleTimeString('en-GB').slice(0,5),
-          description: full.description,
-          calories: getAmt('Energy'),
-          protein:  getAmt('Protein'),
-          carbs:    getAmt('Carbohydrate, by difference'),
-          fat:      getAmt('Total lipid (fat)'),
-          sugars:   getAmt('Sugars, total')
-        };
-        return fetch('/api/entries', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(entry)
-        });
-      })
-      .then(r => {
-        if (!r.ok) throw new Error();
-        loadEntries();
-        setSearch('');
-        setSuggestions([]);
-      })
-      .catch(() => alert('Could not add entry. Please make sure you’re logged in.'));
+  // Add food entry
+  const addEntry = async (food) => {
+    try {
+      const newEntry = {
+        date,
+        time: new Date().toTimeString().substring(0, 5),
+        description: food.description,
+        calories: food.calories || 0,
+        protein: food.protein || 0,
+        carbs: food.carbs || 0,
+        fat: food.fat || 0,
+        sugars: food.sugars || 0
+      };
+
+      const response = await fetch('/api/entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEntry)
+      });
+
+      const data = await response.json();
+      setEntries([...entries, data]);
+      calculateTotals([...entries, data]);
+      setSearch('');
+      setSuggestions([]);
+    } catch (err) {
+      console.error('Error adding entry:', err);
+    }
+  };
+
+  // Delete food entry
+  const deleteEntry = async (id) => {
+    try {
+      await fetch(`/api/entries/${id}`, { method: 'DELETE' });
+      const updatedEntries = entries.filter(entry => entry._id !== id);
+      setEntries(updatedEntries);
+      calculateTotals(updatedEntries);
+    } catch (err) {
+      console.error('Error deleting entry:', err);
+    }
   };
 
   return (
     <div className="container">
-      <button className="home-btn-blue" onClick={() => navigate(-1)}>
+      <button className="home-btn-blue" onClick={() => navigate('/')}>
         ← Back
       </button>
 
       <h1>Track My Calories</h1>
+      <p>Logged in as sharmin_38@yahoo.com</p>
 
-      {user && (
-        <p style={{ color: 'var(--secondary)' }}>
-          Logged in as <strong>{user.email}</strong>
-        </p>
-      )}
+      {/* Nutrition summary chart would go here */}
 
-      {/* Chart */}
-      <div style={{ width: '100%', height: 300, marginBottom: '2rem' }}>
-        <ResponsiveContainer>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" stroke="var(--text-secondary)" />
-            <YAxis stroke="var(--text-secondary)" />
-            <Tooltip />
-            <Bar dataKey="value" fill="var(--primary)" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="nutrition-summary">
+        <div className="summary-item">
+          <span className="value">{totals.calories.toFixed(0)}</span>
+          <span className="label">Calories</span>
+        </div>
+        <div className="summary-item">
+          <span className="value">{totals.protein.toFixed(0)}g</span>
+          <span className="label">Protein</span>
+        </div>
+        <div className="summary-item">
+          <span className="value">{totals.carbs.toFixed(0)}g</span>
+          <span className="label">Carbs</span>
+        </div>
+        <div className="summary-item">
+          <span className="value">{totals.fat.toFixed(0)}g</span>
+          <span className="label">Fat</span>
+        </div>
+        <div className="summary-item">
+          <span className="value">{totals.sugars.toFixed(0)}g</span>
+          <span className="label">Sugars</span>
+        </div>
       </div>
 
-      {/* Entries Table */}
-      <div className="detail-container entries-table">
-        <h2>Entries on {date}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Description</th>
-              <th>Cal</th>
+      <h2>Entries on {new Date(date).toLocaleDateString()}</h2>
+
+      <table className="entries-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Description</th>
+            <th>Cal</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map(entry => (
+            <tr key={entry._id}>
+              <td>
+                <input
+                  type="time"
+                  className="time-input"
+                  value={entry.time}
+                  onChange={(e) => updateEntryTime(entry._id, e.target.value)}
+                />
+              </td>
+              <td>{entry.description}</td>
+              <td>{entry.calories.toFixed(0)}</td>
+              <td>
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteEntry(entry._id)}
+                  title="Delete entry"
+                >
+                  ×
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {entries.length === 0 ? (
-              <tr>
-                <td colSpan="3">No entries for this date</td>
-              </tr>
-            ) : (
-              entries.map(e => (
-                <tr key={e._id}>
-                  <td>{e.time}</td>
-                  <td>{e.description}</td>
-                  <td>{e.calories}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <p className="totals">
-          Total: Calories {totals.Calories.toFixed(2)}, Protein {totals.Protein.toFixed(2)}, Carbs {totals.Carbs.toFixed(2)}, Fat {totals.Fat.toFixed(2)}, Sugars {totals.Sugars.toFixed(2)}
-        </p>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="totals">
+        Total: Calories {totals.calories.toFixed(2)},
+        Protein {totals.protein.toFixed(2)}g,
+        Carbs {totals.carbs.toFixed(2)}g,
+        Fat {totals.fat.toFixed(2)}g,
+        Sugars {totals.sugars.toFixed(2)}g
       </div>
 
-      {/* Date & Search */}
       <div className="track-controls">
         <input
           type="date"
           className="date-picker"
           value={date}
-          onChange={e => setDate(e.target.value)}
+          onChange={(e) => setDate(e.target.value)}
         />
-        <div className="search-bar" style={{ flex: 1 }}>
+        <div className="search-bar">
           <input
+            type="text"
             placeholder="Search food..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              handleSearch(e.target.value);
+            }}
           />
-          <button onClick={() => setSearch(search)}>Find</button>
+          {suggestions.length > 0 && (
+            <div className="suggestions">
+              {suggestions.map(food => (
+                <div
+                  key={food.fdcId}
+                  className="suggestion-card"
+                  onClick={() => addEntry(food)}
+                >
+                  <strong>{food.description}</strong>
+                  <small>{food.brandOwner || 'Generic'}</small>
+                  <small>{food.calories} cal</small>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Suggestions */}
-      <div className="grid">
-        {suggestions.map(f => (
-          <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
-            <h3>{f.description}</h3>
-            <p>{f.brandOwner}</p>
-          </div>
-        ))}
       </div>
     </div>
   );

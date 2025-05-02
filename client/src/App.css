@@ -297,15 +297,145 @@ th {
   color: var(--on-primary);
 }
 
-/* — TRACK PAGE — */
+/* Compare Page Styles */
+.selected-food {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: 0.5rem;
+}
+
+.selected-food h3 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.suggestion-card {
+  padding: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--bg);
+  transition: background 0.2s;
+}
+
+.suggestion-card:hover {
+  background: rgba(187, 134, 252, 0.1);
+}
+
+.suggestion-card:last-child {
+  border-bottom: none;
+}
+
+.compare-box {
+  position: relative;
+}
+
+.compare-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.compare-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+/* Track Page Styles */
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.entries-table th,
+.entries-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--text-secondary);
+}
+
+.entries-table th {
+  background: var(--bg);
+  color: var(--primary);
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--error);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  transition: color 0.2s;
+}
+
+.delete-btn:hover {
+  color: #ff4d4d;
+}
+
+.totals {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.nutrition-summary {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  gap: 0.5rem;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: 0.5rem;
+}
+
+.summary-item .value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.summary-item .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .track-controls {
   display: flex;
-  align-items: center;
   gap: 1rem;
-  margin: 2rem 0;
+  margin-top: 1.5rem;
 }
-.entries-table {
-  margin-bottom: 2rem;
+
+.track-controls .date-picker {
+  flex: 1;
+  max-width: 150px;
+}
+
+.track-controls .search-bar {
+  flex: 2;
+  position: relative;
 }
 
 /* — MODAL STYLING — */
