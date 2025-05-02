@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { FaAppleAlt, FaCarrot, FaDrumstickBite, FaLink } from 'react-icons/fa'
-import LoginModal from '../components/LoginModal'
-import RegistrationModal from '../components/RegistrationModal'
-import { AuthContext } from '../context/AuthContext'
-import nutriLogo from '../assets/profile.svg'
-import reactLogo from '../assets/logo.svg'
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaAppleAlt, FaCarrot, FaDrumstickBite, FaLink } from 'react-icons/fa';
+import LoginModal from '../components/LoginModal';
+import RegistrationModal from '../components/RegistrationModal';
+import { AuthContext } from '../context/AuthContext';
+import nutriLogo from '../assets/profile.svg';
+import reactLogo from '../assets/logo.svg';
 
 export default function HomePage() {
   const { user, logout } = useContext(AuthContext)
