@@ -6,6 +6,7 @@ import SearchPage           from './pages/SearchPage';
 import ComparePage          from './pages/ComparePage';
 import FoodDetail           from './pages/FoodDetail';
 import TrackPage            from './pages/TrackPage';
+import './index.css';
 
 export default function App() {
   return (
