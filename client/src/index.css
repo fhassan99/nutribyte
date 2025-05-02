@@ -582,6 +582,24 @@ th {
     padding: 2rem 1rem;
   }
 }
+.nutrient-info {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
 
+.nutrient-info span {
+  background: rgba(0,0,0,0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
+.chart-container {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+}
 
 
