@@ -185,6 +185,7 @@ export function TrackCalories() {
   );
 }
 
+export default TrackPage;
 
 
 
