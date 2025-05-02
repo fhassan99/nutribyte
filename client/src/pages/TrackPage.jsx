@@ -1,4 +1,3 @@
-// Shared logic for both TrackCalories and TrackPage
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -46,7 +45,7 @@ function useSuggestions(query) {
   return suggestions;
 }
 
-export function TrackCalories() {
+function TrackPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const token = user?.token;
@@ -73,16 +72,17 @@ export function TrackCalories() {
     { Calories: 0, Protein: 0, Carbs: 0, Fat: 0, Sugars: 0 }
   );
 
-  const chartData = Object.entries(totals).map(([key, value]) => ({
-    name: key,
-    value: Number(value.toFixed(2))
+  const chartData = Object.entries(totals).map(([name, value]) => ({
+    name,
+    value: Number(value.toFixed(2)),
   }));
 
   const addEntry = (food) => {
     fetch(`/api/foods/${food.fdcId}`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((full) => {
-        const getAmt = (name) => full.nutrients.find(n => n.nutrientName === name)?.amount || 0;
+        const getAmt = (name) => full.nutrients.find((n) => n.nutrientName === name)?.amount || 0;
+
         const payload = {
           date,
           time: new Date().toISOString().slice(11, 16),
@@ -93,6 +93,7 @@ export function TrackCalories() {
           fat: getAmt('Total lipid (fat)'),
           sugars: getAmt('Sugars, total'),
         };
+
         return fetch('/api/entries', {
           method: 'POST',
           headers: {
@@ -115,7 +116,12 @@ export function TrackCalories() {
       <button className="home-btn-blue" onClick={() => navigate('/')}>← Home</button>
       <h1>Track My Calories</h1>
 
-      {/* Chart */}
+      {user && (
+        <p style={{ color: 'var(--secondary)' }}>
+          Logged in as <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}</strong>
+        </p>
+      )}
+
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -126,7 +132,6 @@ export function TrackCalories() {
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Date Picker */}
       <input
         type="date"
         className="date-picker"
@@ -135,7 +140,6 @@ export function TrackCalories() {
         style={{ margin: '1rem 0' }}
       />
 
-      {/* Search */}
       <input
         className="search-bar"
         placeholder="Search food…"
@@ -143,7 +147,6 @@ export function TrackCalories() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Suggestions */}
       <div className="grid">
         {suggestions.map((f) => (
           <div key={f.fdcId} className="card" onClick={() => addEntry(f)}>
@@ -153,20 +156,25 @@ export function TrackCalories() {
         ))}
       </div>
 
-      {/* Entries */}
       <div className="entries-table">
         <h2>Entries on {date}</h2>
         <table>
           <thead>
             <tr>
-              <th>Time</th><th>Description</th><th>Cal</th><th>Prot</th><th>Carb</th><th>Fat</th><th>Sug</th>
+              <th>Time</th>
+              <th>Description</th>
+              <th>Cal</th>
+              <th>Prot</th>
+              <th>Carb</th>
+              <th>Fat</th>
+              <th>Sug</th>
             </tr>
           </thead>
           <tbody>
             {entries.length === 0 ? (
               <tr><td colSpan="7">No entries</td></tr>
             ) : (
-              entries.map(e => (
+              entries.map((e) => (
                 <tr key={e._id}>
                   <td>{e.time}</td>
                   <td>{e.description}</td>
