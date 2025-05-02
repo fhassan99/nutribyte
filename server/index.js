@@ -1,16 +1,15 @@
-// server/index.js
-const path    = require('path');
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
-const cors    = require('cors');
+const cors = require('cors');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
-const authRouter     = require('./routes/auth');
-const foodsRouter    = require('./routes/foods');
-const entriesRouter  = require('./routes/entries');
+const authRouter = require('./routes/auth');
+const foodsRouter = require('./routes/foods');
+const entriesRouter = require('./routes/entries');
 const authMiddleware = require('./middleware/auth');
 
 const app = express();
@@ -36,27 +35,28 @@ console.log('✅ All routes mounted');
 // ─── Serve React Frontend in Production ────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const buildPath = path.join(__dirname, '../client/build');
+
+  // Serve static files
   app.use(express.static(buildPath));
 
-  // LEGAL “catch-all” for Express 5 / path-to-regexp v6
-  app.get('/*', (req, res) => {
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
     res.sendFile(path.join(buildPath, 'index.html'));
-    });
+  });
 } else {
   app.get('/', (req, res) => {
     res.send('🔧 NutriByte API server running (dev mode)');
   });
 }
 
+// ─── Error Handling Middleware ────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
 // ─── Start Server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-
-
-
-
-
-
