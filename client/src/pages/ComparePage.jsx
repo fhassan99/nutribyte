@@ -1,5 +1,6 @@
-// ComparePage.jsx
 import React, { useState, useEffect } from 'react';
+
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
 export default function ComparePage() {
   const [search1, setSearch1]     = useState('');
@@ -13,42 +14,27 @@ export default function ComparePage() {
   const [showTable, setShowTable] = useState(false);
   const [nutrients, setNutrients] = useState([]);
 
-  // Suggestions for box 1
   useEffect(() => {
-    if (!search1 || showTable || locked1) {
-      setSugs1([]);
-      return;
-    }
-    fetch(`/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=100`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
+    if (!search1 || showTable || locked1) return setSugs1([]);
+    fetch(`${API_BASE}/api/foods?search=${encodeURIComponent(search1)}&page=1&limit=100`)
+      .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setSugs1(data.foods))
       .catch(() => setSugs1([]));
   }, [search1, showTable, locked1]);
 
-  // Suggestions for box 2
   useEffect(() => {
-    if (!search2 || showTable || locked2) {
-      setSugs2([]);
-      return;
-    }
-    fetch(`/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=100`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
+    if (!search2 || showTable || locked2) return setSugs2([]);
+    fetch(`${API_BASE}/api/foods?search=${encodeURIComponent(search2)}&page=1&limit=100`)
+      .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setSugs2(data.foods))
       .catch(() => setSugs2([]));
   }, [search2, showTable, locked2]);
 
-  // Compare action
   const compare = async () => {
     if (!sel1 || !sel2) return;
     const [f1, f2] = await Promise.all([
-      fetch(`/api/foods/${sel1.fdcId}`).then(r => r.json()),
-      fetch(`/api/foods/${sel2.fdcId}`).then(r => r.json())
+      fetch(`${API_BASE}/api/foods/${sel1.fdcId}`).then(r => r.json()),
+      fetch(`${API_BASE}/api/foods/${sel2.fdcId}`).then(r => r.json())
     ]);
 
     const allNames = Array.from(new Set([
@@ -83,101 +69,22 @@ export default function ComparePage() {
 
   return (
     <div className="compare-page container">
-      <button className="home-btn-blue" onClick={() => window.history.back()}>
-        ← Home
-      </button>
+      <button className="home-btn-blue" onClick={() => window.history.back()}>← Home</button>
       <h1>Compare Foods</h1>
 
       <div className="compare-controls">
-        {/* First food */}
-        <div className="compare-box">
-          <label>1) First food</label>
-          <input
-            className="compare-input"
-            placeholder="Type to search…"
-            value={search1}
-            disabled={locked1 || showTable}
-            onChange={e => {
-              setSearch1(e.target.value);
-              setSel1(null);
-              setLocked1(false);
-            }}
-          />
-          <div className="suggestions">
-            {sugs1.map(f => (
-              <div
-                key={f.fdcId}
-                className={`suggestion-card ${sel1 === f ? 'selected' : ''}`}
-                onClick={() => {
-                  setSel1(f);
-                  setSearch1(f.description);
-                  setSugs1([]);
-                  setLocked1(true);
-                }}
-              >
-                <strong>{f.description}</strong>
-                <small>{f.brandOwner}</small>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Second food */}
-        <div className="compare-box">
-          <label>2) Second food</label>
-          <input
-            className="compare-input"
-            placeholder="Type to search…"
-            value={search2}
-            disabled={locked2 || showTable}
-            onChange={e => {
-              setSearch2(e.target.value);
-              setSel2(null);
-              setLocked2(false);
-            }}
-          />
-          <div className="suggestions">
-            {sugs2.map(f => (
-              <div
-                key={f.fdcId}
-                className={`suggestion-card ${sel2 === f ? 'selected' : ''}`}
-                onClick={() => {
-                  setSel2(f);
-                  setSearch2(f.description);
-                  setSugs2([]);
-                  setLocked2(true);
-                }}
-              >
-                <strong>{f.description}</strong>
-                <small>{f.brandOwner}</small>
-              </div>
-            ))}
-          </div>
-        </div>
+        <CompareBox label="1) First food" search={search1} setSearch={setSearch1} suggestions={sugs1} setSuggestions={setSugs1} selected={sel1} setSelected={setSel1} locked={locked1} setLocked={setLocked1} showTable={showTable} />
+        <CompareBox label="2) Second food" search={search2} setSearch={setSearch2} suggestions={sugs2} setSuggestions={setSugs2} selected={sel2} setSelected={setSel2} locked={locked2} setLocked={setLocked2} showTable={showTable} />
       </div>
 
-      {/* Actions */}
       <div className="compare-actions">
-        <button
-          className="compare-btn"
-          onClick={compare}
-          disabled={!sel1 || !sel2 || showTable}
-        >
-          Compare Foods
-        </button>
-        {showTable && (
-          <button className="reset-btn" onClick={reset}>
-            Reset
-          </button>
-        )}
+        <button className="compare-btn" onClick={compare} disabled={!sel1 || !sel2 || showTable}>Compare Foods</button>
+        {showTable && <button className="reset-btn" onClick={reset}>Reset</button>}
       </div>
 
-      {/* Comparison table */}
       {showTable && (
         <div className="compare-table-container">
-          <button className="compare-close" onClick={() => setShowTable(false)}>
-            ×
-          </button>
+          <button className="compare-close" onClick={() => setShowTable(false)}>×</button>
           <table className="compare-table">
             <thead>
               <tr>
@@ -201,6 +108,43 @@ export default function ComparePage() {
     </div>
   );
 }
+
+function CompareBox({ label, search, setSearch, suggestions, setSuggestions, selected, setSelected, locked, setLocked, showTable }) {
+  return (
+    <div className="compare-box">
+      <label>{label}</label>
+      <input
+        className="compare-input"
+        placeholder="Type to search…"
+        value={search}
+        disabled={locked || showTable}
+        onChange={e => {
+          setSearch(e.target.value);
+          setSelected(null);
+          setLocked(false);
+        }}
+      />
+      <div className="suggestions">
+        {suggestions.map(f => (
+          <div
+            key={f.fdcId}
+            className={`suggestion-card ${selected === f ? 'selected' : ''}`}
+            onClick={() => {
+              setSelected(f);
+              setSearch(f.description);
+              setSuggestions([]);
+              setLocked(true);
+            }}
+          >
+            <strong>{f.description}</strong>
+            <small>{f.brandOwner}</small>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 
 

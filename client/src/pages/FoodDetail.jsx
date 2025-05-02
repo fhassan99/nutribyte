@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
+
 export default function FoodDetail() {
-  const { fdcId }  = useParams();
-  const navigate   = useNavigate();
-  const [food, setFood]       = useState(null);
+  const { fdcId } = useParams();
+  const navigate = useNavigate();
+  const [food, setFood] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`/api/foods/${fdcId}`)
+    fetch(`${API_BASE}/api/foods/${fdcId}`)
       .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => setFood(data))
       .catch(() => setError('Failed to load food'))
@@ -17,13 +19,11 @@ export default function FoodDetail() {
   }, [fdcId]);
 
   if (loading) return <p>Loading…</p>;
-  if (error)   return <p className="error">{error}</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div className="detail-container container">
-      <button className="home-btn-blue" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+      <button className="home-btn-blue" onClick={() => navigate(-1)}>← Back</button>
 
       <h1>{food.description}</h1>
       <p><em>{food.brandOwner || 'Unknown Brand'}</em></p>
@@ -43,9 +43,7 @@ export default function FoodDetail() {
         <tbody>
           {food.nutrients.map(n => (
             <tr key={n.nutrientId} className="border-t">
-              <td className="py-2 px-4">
-                {n.nutrientName} ({n.nutrientUnit})
-              </td>
+              <td className="py-2 px-4">{n.nutrientName} ({n.nutrientUnit})</td>
               <td className="py-2 px-4 text-right">{n.amount}</td>
             </tr>
           ))}
@@ -63,6 +61,7 @@ export default function FoodDetail() {
     </div>
   );
 }
+
 
 
 

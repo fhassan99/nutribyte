@@ -20,6 +20,12 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Force logout on homepage load
+    sessionStorage.clear();
+    localStorage.setItem('logout', Date.now());
+  }, []);
+
+  useEffect(() => {
     if (!user) {
       setShowRegister(false);
       setShowLogin(true);
@@ -68,8 +74,6 @@ export default function HomePage() {
         </a>
       </p>
       <p className="creator">Created by Farhan Hassan</p>
-      <>
-      </>
 
       <div className="nav-buttons">
         <button className="home-btn-blue" onClick={() => navigate('/search')}>
@@ -89,19 +93,6 @@ export default function HomePage() {
           }}
         >
           Track My Calories
-          {!user && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '110%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                fontSize: '0.75rem',
-                color: '#999',
-              }}
-            >
-            </span>
-          )}
         </button>
       </div>
 
@@ -127,15 +118,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
