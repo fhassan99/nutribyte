@@ -1,5 +1,5 @@
 // server/index.js
-
+console.log('🌐 Connected to MongoDB:', MONGO_URI);
 const path = require('path');
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
