@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Assuming you have an auth context
 
 export default function TrackPage() {
+  const { currentUser } = useAuth(); // Get current user from auth context
   const [entries, setEntries] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [search, setSearch] = useState('');
@@ -99,6 +101,24 @@ export default function TrackPage() {
     }
   };
 
+  // Update entry time
+  const updateEntryTime = async (id, newTime) => {
+    try {
+      const response = await fetch(`/api/entries/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time: newTime })
+      });
+
+      const updatedEntry = await response.json();
+      setEntries(entries.map(entry =>
+        entry._id === id ? updatedEntry : entry
+      ));
+    } catch (err) {
+      console.error('Error updating entry time:', err);
+    }
+  };
+
   return (
     <div className="container">
       <button className="home-btn-blue" onClick={() => navigate('/')}>
@@ -106,7 +126,9 @@ export default function TrackPage() {
       </button>
 
       <h1>Track My Calories</h1>
-      <p>Logged in as sharmin_38@yahoo.com</p>
+      {currentUser && (
+        <p>Logged in as {currentUser.email}</p> // Display actual user email
+      )}
 
       {/* Nutrition summary chart would go here */}
 
