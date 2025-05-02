@@ -1,63 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 
 export default function FoodDetail() {
   const { fdcId } = useParams();
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const [food, setFood] = useState(null);
-  const [loading, setLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`/api/foods/${fdcId}`)
-      .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(data => setFood(data))
-      .catch(() => setError('Failed to load food'))
-      .finally(() => setLoad(false));
+    const fetchFood = async () => {
+      try {
+        const response = await fetch(`/api/foods/${fdcId}`);
+        if (!response.ok) throw new Error('Food not found');
+        const data = await response.json();
+        setFood(data);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFood();
   }, [fdcId]);
 
-  if (loading) return <p>Loading…</p>;
-  if (error)   return <p className="error">{error}</p>;
+  if (loading) return <div className="container"><p>Loading...</p></div>;
+  if (error) return <div className="container"><p className="error">{error}</p></div>;
 
   return (
-    <>
-      <button className="home-btn-blue" onClick={() => nav(-1)}>Back</button>
-      <div className="detail-container">
+    <div className="container">
+      <button className="home-btn-blue" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
+
+      <div className="food-detail">
         <h1>{food.description}</h1>
-        <p><em>{food.brandOwner}</em></p>
+        {food.brandOwner && <p className="brand">{food.brandOwner}</p>}
+
         {food.ingredients && (
-          <p><strong>Ingredients:</strong> {food.ingredients}</p>
+          <div className="section">
+            <h2>Ingredients</h2>
+            <p>{food.ingredients}</p>
+          </div>
         )}
-        <h2>Nutrients</h2>
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="py-2 px-4">Nutrient</th>
-              <th className="py-2 px-4">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {food.nutrients.map(n => (
-              <tr key={n.nutrientId} className="border-t">
-                <td className="py-2 px-4">
-                  {n.nutrientName} ({n.nutrientUnit})
-                </td>
-                <td className="py-2 px-4 text-right">{n.amount}</td>
+
+        <div className="section">
+          <h2>Nutrition Facts</h2>
+          <table className="nutrient-table">
+            <thead>
+              <tr>
+                <th>Nutrient</th>
+                <th>Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <h2>Attributes</h2>
-        <ul>
-          {food.attributes.map(a => (
-            <li key={a.attributeId}>
-              {a.name}: {a.value}
-            </li>
-          ))}
-        </ul>
+            </thead>
+            <tbody>
+              {food.nutrients?.map(nutrient => (
+                <tr key={nutrient.nutrientId}>
+                  <td>{nutrient.nutrientName} ({nutrient.nutrientUnit})</td>
+                  <td>{nutrient.amount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {food.attributes?.length > 0 && (
+          <div className="section">
+            <h2>Attributes</h2>
+            <ul className="attribute-list">
+              {food.attributes.map(attr => (
+                <li key={attr.attributeId}>
+                  <strong>{attr.name}:</strong> {attr.value}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
