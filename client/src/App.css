@@ -336,17 +336,6 @@ th {
   color: var(--on-primary);
 }
 
-/* — TRACK PAGE — */
-.track-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 2rem 0;
-}
-.entries-table {
-  margin-bottom: 2rem;
-}
-
 /* — MODAL STYLING — */
 .modal-content input {
   width: 100%;
@@ -421,38 +410,117 @@ th {
   color: var(--text-secondary);
 }
 
-/* — Track Page Specific — */
-.nutrition-summary {
-  display: flex;
-  justify-content: space-between;
-  margin: 1.5rem 0;
-  gap: 0.5rem;
-}
-
-.summary-item {
-  flex: 1;
-  text-align: center;
-  padding: 0.75rem;
+/* — TRACK PAGE SPECIFIC STYLES — */
+.track-page {
   background: var(--surface);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2rem;
 }
 
-.summary-item .value {
-  display: block;
-  font-size: 1.25rem;
+/* Nutrition Summary Cards */
+.nutrition-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.summary-card {
+  background: rgba(30, 30, 30, 0.5);
+  border: 1px solid var(--text-secondary);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card .value {
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--primary);
+  margin-bottom: 0.25rem;
 }
 
-.summary-item .label {
-  font-size: 0.8rem;
+.summary-card .label {
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
-.input-container {
-  position: relative;
+/* Chart Container */
+.chart-container {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
+.chart-container h2 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+/* Entries Table */
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background: var(--surface);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.entries-table th {
+  background: var(--bg);
+  color: var(--primary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 500;
+}
+
+.entries-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bg);
+}
+
+.entries-table tr:last-child td {
+  border-bottom: none;
+}
+
+.entries-table tr:hover td {
+  background: rgba(187, 134, 252, 0.05);
+}
+
+/* Track Controls */
+.track-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.track-controls .input-container {
+  position: relative;
+  flex: 1;
+}
+
+.track-controls input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--text-secondary);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Clear Button */
 .clear-btn {
   position: absolute;
   right: 10px;
@@ -469,6 +537,14 @@ th {
   color: var(--error);
 }
 
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+/* Selected Food Preview */
 .selected-preview {
   margin: 1.5rem 0;
   display: grid;
@@ -519,6 +595,26 @@ th {
   margin-bottom: 0.5rem;
 }
 
+/* Recharts Overrides */
+.recharts-cartesian-axis-tick text {
+  fill: var(--text-secondary);
+}
+
+.recharts-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--text-secondary) !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.recharts-default-tooltip .recharts-tooltip-label {
+  color: var(--primary);
+}
+
+.recharts-tooltip-item {
+  color: var(--text);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .compare-controls {
@@ -527,11 +623,17 @@ th {
   }
 
   .nutrition-summary {
-    flex-wrap: wrap;
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .summary-item {
-    min-width: calc(50% - 0.5rem);
+  .track-controls {
+    flex-direction: column;
+  }
+
+  .track-controls input,
+  .track-controls .date-picker,
+  .track-controls .time-input {
+    width: 100%;
   }
 }
 
@@ -545,11 +647,17 @@ th {
     padding: 2rem 1rem;
   }
 
-  .track-controls {
-    flex-direction: column;
+  .nutrition-summary {
+    grid-template-columns: 1fr;
   }
 
-  .track-controls .date-picker {
-    max-width: 100%;
+  .entries-table th,
+  .entries-table td {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .summary-card .value {
+    font-size: 1.25rem;
   }
 }
