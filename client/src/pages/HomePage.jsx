@@ -14,6 +14,7 @@ export default function HomePage() {
   const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
 
+  // On first load, if not logged in, show the login modal
   useEffect(() => {
     if (!user) setShowLogin(true);
   }, [user]);
@@ -50,7 +51,7 @@ export default function HomePage() {
       </p>
       <p className="creator">Created by Farhan Hassan</p>
 
-      {/* <-- Updated nav-buttons --> */}
+      {/* nav-buttons: SEARCH and COMPARE always visible */}
       <div className="nav-buttons">
         <button
           className="home-btn-blue"
@@ -65,7 +66,8 @@ export default function HomePage() {
           Compare Foods
         </button>
 
-        {user ? (
+        {/* only show these if logged in */}
+        {user && (
           <>
             <button
               className="home-btn-blue"
@@ -80,26 +82,11 @@ export default function HomePage() {
               Logout
             </button>
           </>
-        ) : (
-          <>
-            <button
-              className="home-btn-blue"
-              onClick={() => setShowLogin(true)}
-            >
-              Login
-            </button>
-            <button
-              className="home-btn-blue"
-              onClick={() => setShowRegister(true)}
-            >
-              Register
-            </button>
-          </>
         )}
       </div>
-      {/* --> */}
 
-      {showLogin && (
+      {/* Modals for login/register */}
+      {showLogin && !user && (
         <LoginModal
           onClose={() => setShowLogin(false)}
           onSwitchToRegister={() => {
@@ -109,7 +96,7 @@ export default function HomePage() {
         />
       )}
 
-      {showRegister && (
+      {showRegister && !user && (
         <RegistrationModal
           onClose={() => setShowRegister(false)}
           onSwitchToLogin={() => {
@@ -121,4 +108,5 @@ export default function HomePage() {
     </div>
   );
 }
+
 
