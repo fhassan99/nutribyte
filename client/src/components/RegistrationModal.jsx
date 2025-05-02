@@ -31,7 +31,8 @@ export default function RegistrationModal({ onClose, onSwitchToLogin }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
+        <h1>Welcome to Calorie Tracker</h1>
+        <p>Join us to track your calories and manage your diet.</p>
         <h2>Register</h2>
         <form onSubmit={handleRegister}>
           <input name="firstName" placeholder="First name" value={info.firstName} onChange={handleChange} />
