@@ -1,4 +1,3 @@
-
 /* — HOMEPAGE — */
 .homepage {
   background: var(--surface);
@@ -37,7 +36,7 @@
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: background .2s, transform .2s;
+  transition: background 0.2s, transform 0.2s;
 }
 .home-btn-blue:hover {
   background: var(--secondary);
@@ -58,14 +57,14 @@
   color: var(--text);
 }
 .search-bar button {
-  margin-left: .5rem;
-  padding: .75rem 1.5rem;
+  margin-left: 0.5rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 9999px;
   border: none;
   background: var(--primary);
   color: var(--on-primary);
   cursor: pointer;
-  transition: background .2s, transform .2s;
+  transition: background 0.2s, transform 0.2s;
 }
 .search-bar button:hover {
   background: var(--secondary);
@@ -77,22 +76,22 @@
   gap: 1rem;
   margin-top: 1rem;
 }
-@media(min-width:640px) {
+@media (min-width: 640px) {
   .grid {
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 .card {
   background: var(--surface);
-  padding:1rem;
-  border-radius:1rem;
-  box-shadow:0 4px 6px rgba(0,0,0,0.5);
-  cursor:pointer;
-  transition: transform .15s, box-shadow .15s;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 .card:hover {
   transform: scale(1.02);
-  box-shadow:0 6px 10px rgba(0,0,0,0.7);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* — DETAIL & COMPARE TABLES — */
@@ -100,24 +99,25 @@
 .compare-container,
 .compare-section {
   background: var(--surface);
-  border-radius:1rem;
-  padding:2rem;
-  margin-top:2rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 table {
-  width:100%;
-  border-collapse:collapse;
-  margin-bottom:1.5rem;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
 }
-th, td {
-  border:1px solid var(--text-secondary);
-  padding:.75rem;
-  text-align:left;
-  color:var(--text);
+th,
+td {
+  border: 1px solid var(--text-secondary);
+  padding: 0.75rem;
+  text-align: left;
+  color: var(--text);
 }
 th {
-  background:var(--bg);
+  background: var(--bg);
 }
 
 /* — Compare Page Layout — */
@@ -149,11 +149,11 @@ th {
   color: var(--text);
   font-size: 1rem;
   outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .compare-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(187,134,252,0.3);
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.3);
 }
 
 /* — Suggestions dropdown — */
@@ -168,13 +168,13 @@ th {
 .suggestion-card {
   padding: 0.5rem 1rem;
   cursor: pointer;
-  transition: background .2s;
+  transition: background 0.2s;
 }
 .suggestion-card:hover {
-  background: rgba(187,134,252,0.1);
+  background: rgba(187, 134, 252, 0.1);
 }
 .suggestion-card.selected {
-  background: rgba(187,134,252,0.2);
+  background: rgba(187, 134, 252, 0.2);
   border-left: 4px solid var(--primary);
 }
 
@@ -188,7 +188,7 @@ th {
   cursor: pointer;
   font-size: 1rem;
   margin-bottom: 1.5rem;
-  transition: background .2s, transform .2s;
+  transition: background 0.2s, transform 0.2s;
 }
 .compare-btn:disabled {
   opacity: 0.5;
@@ -205,7 +205,7 @@ th {
   background: var(--surface);
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
   margin-top: 1rem;
   overflow-x: auto;
 }
@@ -218,7 +218,7 @@ th {
   font-size: 1.5rem;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: color .2s;
+  transition: color 0.2s;
 }
 .compare-close:hover {
   color: var(--primary);
@@ -263,7 +263,7 @@ th {
   margin-bottom: 1.5rem;
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .reset-btn:hover {
@@ -273,13 +273,13 @@ th {
 
 /* — TRACK PAGE — */
 .track-controls {
-  display:flex;
-  align-items:center;
-  gap:1rem;
-  margin:2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
 }
 .entries-table {
-  margin-bottom:2rem;
+  margin-bottom: 2rem;
 }
 
 /* — MODAL STYLING — */
@@ -316,7 +316,7 @@ th {
 .link-button {
   background-color: var(--surface); /* match modal bg */
   border: none;
-  color: var(--primary);            /* match purple */
+  color: var(--primary); /* match purple */
   text-decoration: underline;
   cursor: pointer;
   padding: 0.5rem 1rem;
@@ -328,10 +328,10 @@ th {
 .time-input {
   background: var(--bg);
   border: 1px solid var(--text-secondary);
-  border-radius: .25rem;
-  padding: .25rem;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
   color: var(--text);
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 .delete-btn {
   background: transparent;
@@ -372,4 +372,3 @@ th {
   flex-wrap: nowrap;
   gap: 0.5rem;
 }
-
