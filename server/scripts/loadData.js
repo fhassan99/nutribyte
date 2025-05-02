@@ -30,7 +30,7 @@ async function processJson(filename, onObject) {
 }
 
 async function run() {
-  const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nutribyte';
+  const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/nutribyte';
   await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   console.log('✅ MongoDB connected to', MONGO_URI);
 
