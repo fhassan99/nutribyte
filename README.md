@@ -8,7 +8,7 @@ A full-stack nutrition explorer and calorie tracker built with React, Node/Expre
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Food Search & Compare**
   Live type-ahead powered by USDA Food Data API.
@@ -68,8 +68,9 @@ Edit
    ```bash
    git clone https://github.com/fhassan99/nutribyte.git
    cd nutribyte
-Create & populate .env
-At project root:
+   Create & populate .env
+   At project root:
+   ```
 
 ini
 Copy
@@ -88,20 +89,20 @@ Install dependencies
 bash
 Copy
 Edit
-npm install           # install root scripts (also runs server & client installs via heroku-postbuild)
+npm install # install root scripts (also runs server & client installs via heroku-postbuild)
 Run in development
 In one terminal:
 
 bash
 Copy
 Edit
-npm run server       # launches Express on http://localhost:4000
+npm run server # launches Express on http://localhost:4000
 In another:
 
 bash
 Copy
 Edit
-npm run client       # launches CRA on http://localhost:3000
+npm run client # launches CRA on http://localhost:3000
 Visit
 
 Front end: http://localhost:3000
@@ -111,13 +112,13 @@ API docs (if any): http://localhost:4000
 ⚙️ Available Scripts
 From the project root you can run:
 
-Script	Description
-npm run client	Start React development server (CRA)
-npm run server	Start Express API in development mode
-npm start	Build & serve both client & server (for production)
-npm run build	Build React client into client/build
-npm test	Run front-end tests (if implemented)
-npm run eject	One-way: eject CRA config
+Script Description
+npm run client Start React development server (CRA)
+npm run server Start Express API in development mode
+npm start Build & serve both client & server (for production)
+npm run build Build React client into client/build
+npm test Run front-end tests (if implemented)
+npm run eject One-way: eject CRA config
 
 🚢 Deployment
 We use Heroku to host both server and client:
@@ -165,92 +166,3 @@ Open a Pull Request
 This project is open-source and available under the MIT License.
 
 Enjoy exploring your nutrition data with NutriByte!
-
-classDiagram
-  %% ==============================
-  %% Backend Models
-  %% ==============================
-  class Food {
-    +Number fdcId
-    +String description
-    +String brandOwner
-    +String ingredients
-    +Nutrient[] nutrients
-    +Attribute[] attributes
-  }
-  class Nutrient {
-    +Number nutrientId
-    +String nutrientName
-    +String nutrientUnit
-    +Number amount
-  }
-  class Attribute {
-    +Number attributeId
-    +String name
-    +String value
-  }
-  class CalorieEntry {
-    +ObjectId _id
-    +Number fdcId
-    +String description
-    +Date date
-    +String time
-    +Number calories
-    +Number protein
-    +Number carbs
-    +Number fat
-    +Number sugars
-    +ObjectId userId
-  }
-  class User {
-    +ObjectId _id
-    +String email
-    +String passwordHash
-    +String firstName
-    +String lastName
-  }
-
-  %% Relationships
-  Food "1" <-- "0..*" CalorieEntry : references
-  User "1" <-- "0..*" CalorieEntry : owns
-
-  %% ==============================
-  %% Frontend Pages / Components
-  %% ==============================
-  class SearchPage {
-    +searchTerm: String
-    +foods: Food[]
-    +featuredFood: Food
-    +void handleSearch()
-    +void selectFood(fdcId)
-  }
-  class ComparePage {
-    +sel1: Food
-    +sel2: Food
-    +NutrientComparison[] nutrients
-    +void compareFoods()
-    +void reset()
-  }
-  class TrackPage {
-    +date: Date
-    +entries: CalorieEntry[]
-    +totals: { Calories, Protein, Carbs, Fat, Sugars }
-    +void addEntry(food: Food)
-    +void deleteEntry(entryId)
-    +void updateEntryTime(entryId, time)
-  }
-  class FoodDetail {
-    +food: Food
-  }
-
-  %% Frontend ↔ Backend interactions
-  SearchPage --> Food : GET /api/foods?search=
-  FoodDetail --> Food  : GET /api/foods/:fdcId
-  ComparePage --> Food : GET /api/foods/:fdcId
-  ComparePage --> Food : GET /api/foods/:fdcId
-  TrackPage --> CalorieEntry : GET /api/entries?date=
-  TrackPage --> CalorieEntry : POST /api/entries
-  TrackPage --> CalorieEntry : PATCH /api/entries/:id
-  TrackPage --> CalorieEntry : DELETE /api/entries/:id
-
-

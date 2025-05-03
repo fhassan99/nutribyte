@@ -8,7 +8,7 @@ A full-stack nutrition explorer and calorie tracker built with React, Node/Expre
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Food Search & Compare**
   Live type-ahead powered by USDA Food Data API.
@@ -43,4 +43,3 @@ A full-stack nutrition explorer and calorie tracker built with React, Node/Expre
 ---
 
 ## 📦 Project Structure
-
